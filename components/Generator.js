@@ -11,14 +11,14 @@ const MODES = [
   { id: 'study_plan', label: 'Study plan' },
 ];
 
-export default function Generator({ subject, sourceText }) {
+export default function Generator({ subject, sourceText, onSaved, initialOutput }) {
   const [mode, setMode] = useState('past_paper');
   const [notes, setNotes] = useState('');
   const [assessmentDate, setAssessmentDate] = useState('');
   const [difficulty, setDifficulty] = useState('match');
   const [strictness, setStrictness] = useState('strict');
   const [busy, setBusy] = useState(false);
-  const [output, setOutput] = useState(null);
+  const [output, setOutput] = useState(initialOutput || null);
   const [error, setError] = useState(null);
   const [addedToChecklist, setAddedToChecklist] = useState(false);
 
@@ -44,13 +44,29 @@ export default function Generator({ subject, sourceText }) {
         }),
       });
       const data = await res.json();
-      if (!res.ok) setError(data.error || 'Something went wrong.');
-      else setOutput(data);
+      if (!res.ok) {
+        setError(data.error || 'Something went wrong.');
+      } else {
+        setOutput(data);
+        save(data);
+      }
     } catch (err) {
       setError(err.message);
     } finally {
       setBusy(false);
     }
+  }
+
+  async function save(data) {
+    const label = MODES.find((m) => m.id === data.mode)?.label || 'Output';
+    const stamp = new Date().toLocaleDateString('en-AU', { day: 'numeric', month: 'short' });
+    const { error } = await supabase.from('aio_studyboy_outputs').insert({
+      subject: subject || null,
+      mode: data.mode,
+      title: `${subject ? subject + ' — ' : ''}${label}, ${stamp}`,
+      payload: data,
+    });
+    if (!error) onSaved?.();
   }
 
   async function addPlanToChecklist() {
@@ -181,7 +197,7 @@ export default function Generator({ subject, sourceText }) {
           ) : (
             <>
               <div className="mb-2 flex items-center justify-between">
-                <span className="text-xs text-muted">Output</span>
+                <span className="text-xs text-muted">Saved to history</span>
                 <button
                   onClick={() => navigator.clipboard.writeText(output.text)}
                   className="text-xs text-accent hover:underline"
