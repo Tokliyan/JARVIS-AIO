@@ -184,6 +184,56 @@ export default function CommandBar() {
         break;
       }
 
+      case 'update_project': {
+        const { data } = await supabase
+          .from('aio_projects')
+          .select('id, name')
+          .ilike('name', `%${intent.project_match}%`)
+          .limit(1);
+        if (!data || data.length === 0) {
+          return setResult({
+            kind: 'error',
+            message: `No project matching "${intent.project_match}".`,
+          });
+        }
+        const { error } = await supabase
+          .from('aio_projects')
+          .update({ [intent.field]: intent.value, updated_at: new Date().toISOString() })
+          .eq('id', data[0].id);
+        if (error) return setResult({ kind: 'error', message: error.message });
+        setResult({
+          kind: 'ok',
+          message: `Updated ${data[0].name}'s ${intent.field.replace('_', ' ')}.`,
+        });
+        setValue('');
+        router.replace(router.asPath, undefined, { scroll: false });
+        break;
+      }
+
+      case 'add_roadmap_item': {
+        const { data } = await supabase
+          .from('aio_projects')
+          .select('id, name, roadmap')
+          .ilike('name', `%${intent.project_match}%`)
+          .limit(1);
+        if (!data || data.length === 0) {
+          return setResult({
+            kind: 'error',
+            message: `No project matching "${intent.project_match}".`,
+          });
+        }
+        const roadmap = Array.isArray(data[0].roadmap) ? data[0].roadmap : [];
+        const { error } = await supabase
+          .from('aio_projects')
+          .update({ roadmap: [...roadmap, { title: intent.title, status: intent.status || 'planned' }] })
+          .eq('id', data[0].id);
+        if (error) return setResult({ kind: 'error', message: error.message });
+        setResult({ kind: 'ok', message: `Added to ${data[0].name}'s roadmap.` });
+        setValue('');
+        router.replace(router.asPath, undefined, { scroll: false });
+        break;
+      }
+
       case 'summary': {
         const target = intent.scope === 'tomorrow' ? isoDaysFromNow(1) : isoDaysFromNow(0);
         const dayNum = new Date(target).getDay();

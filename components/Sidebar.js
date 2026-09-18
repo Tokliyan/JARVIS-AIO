@@ -36,7 +36,7 @@ export default function Sidebar() {
       <header className="sticky top-0 z-20 border-b border-border bg-surface/95 backdrop-blur md:hidden">
         <div className="flex items-center justify-between px-4 pt-3">
           <Link href="/status" className="text-sm font-medium tracking-tight text-ink">
-            Ambient Intelligence
+            JARVIS AIO
           </Link>
           <div className="flex items-center gap-0.5">
             <ThemeToggle compact />
@@ -74,7 +74,7 @@ export default function Sidebar() {
       <aside className="hidden w-56 shrink-0 flex-col border-r border-border bg-surface px-3 py-5 md:flex">
         <div className="mb-6 px-3">
           <Link href="/status" className="text-sm font-medium tracking-tight text-ink">
-            Ambient Intelligence
+            JARVIS AIO
           </Link>
           <div className="tnum mt-0.5 text-2xs text-faint">{today}</div>
         </div>

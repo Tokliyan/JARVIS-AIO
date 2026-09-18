@@ -33,7 +33,7 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-xs">
-        <p className="mb-6 text-sm font-medium tracking-tight text-ink">Ambient Intelligence</p>
+        <p className="mb-6 text-sm font-medium tracking-tight text-ink">JARVIS AIO</p>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
           <input

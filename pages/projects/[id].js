@@ -7,9 +7,11 @@ import SectionLabel from '@/components/SectionLabel';
 import { BarRow } from '@/components/charts';
 import ActivityTimeline from '@/components/ActivityTimeline';
 import MetricsEditor from '@/components/MetricsEditor';
+import RoadmapEditor from '@/components/RoadmapEditor';
+import ProjectNotes from '@/components/ProjectNotes';
 
 const DOT = { good: 'bg-good', warn: 'bg-warn', bad: 'bg-bad', idle: 'bg-border' };
-const TABS = ['Overview', 'Activity', 'Metrics'];
+const TABS = ['Overview', 'Roadmap', 'Activity', 'Metrics'];
 
 export default function ProjectDetail() {
   const router = useRouter();
@@ -79,21 +81,12 @@ export default function ProjectDetail() {
       </div>
 
       {tab === 'Overview' && (
-        <div className="flex flex-col gap-8 animate-row-in">
+        <div className="flex animate-row-in flex-col gap-8">
           {project.last_update && (
             <section>
               <SectionLabel>Where it&rsquo;s at</SectionLabel>
               <p className="max-w-prose whitespace-pre-line text-sm leading-relaxed text-ink">
                 {project.last_update}
-              </p>
-            </section>
-          )}
-
-          {project.next_milestone && (
-            <section>
-              <SectionLabel>Next</SectionLabel>
-              <p className="max-w-prose text-sm leading-relaxed text-ink">
-                {project.next_milestone}
               </p>
             </section>
           )}
@@ -132,6 +125,15 @@ export default function ProjectDetail() {
               </div>
             </section>
           )}
+        </div>
+      )}
+
+      {tab === 'Roadmap' && (
+        <div className="flex animate-row-in flex-col gap-10">
+          <RoadmapEditor project={project} onChange={load} />
+          <div className="border-t border-border pt-8">
+            <ProjectNotes project={project} onChange={load} />
+          </div>
         </div>
       )}
 
