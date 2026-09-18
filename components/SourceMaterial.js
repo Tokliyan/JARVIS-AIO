@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
+import DrivePicker from '@/components/DrivePicker';
 
 const TEXT_TYPES = ['text/plain', 'text/markdown', 'text/csv', 'application/json'];
 
@@ -101,8 +102,8 @@ export default function SourceMaterial({ subject, setSubject, sourceText, setSou
     <div className="rounded border border-border bg-surface p-4">
       <h2 className="mb-3 text-sm font-medium text-ink">Source material</h2>
       <p className="mb-3 text-xs text-muted">
-        Paste notes, upload a PDF or past paper, or photograph handwritten work. Everything
-        Studyboy makes is built from this — not generic knowledge.
+        Pull a file straight from Drive, upload a PDF or past paper, photograph handwritten work,
+        or just paste. Everything Studyboy makes is built from this — not generic knowledge.
       </p>
 
       <div className="mb-3 flex flex-wrap gap-2">
@@ -143,6 +144,16 @@ export default function SourceMaterial({ subject, setSubject, sourceText, setSou
         >
           Take photo
         </button>
+        <DrivePicker
+          disabled={extracting}
+          onError={(msg) => setError(msg)}
+          onText={(text, name) => {
+            setError(null);
+            setFileName(name || 'Drive file');
+            setLastSource('google_drive');
+            setSourceText((prev) => (prev ? prev + '\n\n' + text : text));
+          }}
+        />
         <button
           onClick={saveDoc}
           disabled={saving || extracting || !sourceText.trim()}
