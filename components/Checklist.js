@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
+import Tile from '@/components/Tile';
+import { ProgressRing } from '@/components/charts';
 
 const PRIORITY_DOT = { low: 'bg-muted', med: 'bg-warn', high: 'bg-bad' };
 
@@ -64,7 +66,14 @@ export default function Checklist() {
 
   return (
     <div>
-      <h2 className="mb-3 text-sm font-medium text-ink">Checklist</h2>
+      <div className="mb-3 flex items-center justify-between">
+        <h2 className="text-sm font-medium text-ink">Checklist</h2>
+        <ProgressRing
+          done={items.filter((i) => i.status === 'done').length}
+          total={items.length}
+          size={36}
+        />
+      </div>
 
       <form onSubmit={addItem} className="mb-4 flex flex-wrap gap-2">
         <input
@@ -108,15 +117,20 @@ export default function Checklist() {
         <p className="text-sm text-muted">Nothing on the list yet.</p>
       ) : (
         <ul className="flex flex-col divide-y divide-border rounded border border-border bg-surface">
-          {items.map((item) => (
-            <li key={item.id} className="flex items-center gap-3 px-3 py-2">
+          {items.map((item, i) => (
+            <li
+              key={item.id}
+              className="flex animate-row-in items-center gap-3 px-3 py-2 transition-colors hover:bg-bg"
+              style={{ animationDelay: `${Math.min(i * 30, 300)}ms` }}
+            >
               <input
                 type="checkbox"
                 checked={item.status === 'done'}
                 onChange={() => toggleDone(item)}
-                className="h-4 w-4"
+                className="h-3.5 w-3.5 accent-[#2F6F4E]"
               />
               <span className={`h-1.5 w-1.5 rounded-full ${PRIORITY_DOT[item.priority]}`} />
+              <Tile tag={item.tag} size="sm" />
               <span
                 className={`flex-1 text-sm ${
                   item.status === 'done' ? 'text-muted line-through' : 'text-ink'
@@ -124,9 +138,9 @@ export default function Checklist() {
               >
                 {item.title}
               </span>
-              <span className="text-xs text-muted">{item.tag}</span>
+              <span className="text-xs text-faint">{item.tag}</span>
               {item.due_date && (
-                <span className="font-mono text-xs text-muted">{item.due_date}</span>
+                <span className="tnum text-xs text-faint">{item.due_date}</span>
               )}
               <button
                 onClick={() => removeItem(item.id)}

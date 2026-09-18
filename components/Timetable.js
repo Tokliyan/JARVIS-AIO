@@ -134,14 +134,14 @@ export default function Timetable() {
         <div className="grid grid-cols-5 gap-2">
           {Object.entries(DAY_LABELS).map(([dayNum, label]) => (
             <div key={dayNum} className="rounded border border-border bg-surface p-2">
-              <div className="mb-2 font-mono text-xs text-muted">{label}</div>
+              <div className="mb-2 text-2xs uppercase tracking-wider text-faint">{label}</div>
               <div className="flex flex-col gap-1.5">
                 {periods
                   .filter((p) => p.day_of_week === Number(dayNum))
                   .map((p) => (
                     <div key={p.id} className="group relative rounded bg-bg p-1.5 text-xs">
                       <div className="font-medium text-ink">{p.subject}</div>
-                      <div className="font-mono text-muted">
+                      <div className="tnum text-faint">
                         {p.start_time?.slice(0, 5)}
                         {p.room ? ` · ${p.room}` : ''}
                       </div>

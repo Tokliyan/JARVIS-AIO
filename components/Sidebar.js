@@ -3,10 +3,10 @@ import { useRouter } from 'next/router';
 import { supabase } from '@/lib/supabaseClient';
 
 const NAV = [
-  { href: '/', label: 'Timetable & Checklist' },
-  { href: '/status', label: 'Daily Status' },
-  { href: '/projects', label: 'Projects' },
+  { href: '/status', label: 'Today' },
+  { href: '/', label: 'Timetable' },
   { href: '/studyboy', label: 'Studyboy' },
+  { href: '/projects', label: 'Projects' },
 ];
 
 export default function Sidebar() {
@@ -18,24 +18,32 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="flex w-60 shrink-0 flex-col border-r border-border bg-surface px-4 py-5">
-      <div className="mb-6 px-2 font-mono text-sm text-ink">
+    <aside className="flex w-52 shrink-0 flex-col border-r border-border bg-surface px-3 py-5">
+      <Link href="/status" className="mb-8 px-3 text-sm font-medium tracking-tight text-ink">
         Ambient Intelligence
-      </div>
+      </Link>
+
       <nav className="flex flex-1 flex-col gap-0.5">
-        {NAV.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className="rounded px-3 py-2 text-sm text-ink hover:bg-bg"
-          >
-            {item.label}
-          </Link>
-        ))}
+        {NAV.map((item) => {
+          const active = router.pathname === item.href;
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              aria-current={active ? 'page' : undefined}
+              className={`rounded px-3 py-1.5 text-sm transition-colors ${
+                active ? 'bg-bg font-medium text-ink' : 'text-muted hover:bg-bg hover:text-ink'
+              }`}
+            >
+              {item.label}
+            </Link>
+          );
+        })}
       </nav>
+
       <button
         onClick={signOut}
-        className="rounded px-3 py-2 text-left text-sm text-muted hover:bg-bg"
+        className="rounded px-3 py-1.5 text-left text-xs text-faint transition-colors hover:bg-bg hover:text-ink"
       >
         Sign out
       </button>

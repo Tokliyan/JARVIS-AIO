@@ -4,4 +4,35 @@
 
 html {
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Tabular figures everywhere numbers appear in columns, so they line up
+   without needing a monospace face to do the work. */
+.tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
+/* Dotted rule — the divider treatment from the reference. */
+.rule-dotted {
+  border-bottom: 1px dotted theme('colors.rule');
+}
+
+/* Visible keyboard focus, never removed. */
+:focus-visible {
+  outline: 2px solid theme('colors.accent');
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

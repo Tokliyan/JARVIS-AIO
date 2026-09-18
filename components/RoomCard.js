@@ -1,62 +1,57 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
+import { Sparkline } from '@/components/charts';
 
 export default function RoomCard() {
-  const [reading, setReading] = useState(null);
+  const [readings, setReadings] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    load();
+    (async () => {
+      const { data } = await supabase
+        .from('aio_room_readings')
+        .select('*')
+        .order('recorded_at', { ascending: false })
+        .limit(24);
+      setReadings((data || []).reverse());
+      setLoading(false);
+    })();
   }, []);
 
-  async function load() {
-    setLoading(true);
-    const { data } = await supabase
-      .from('aio_room_readings')
-      .select('*')
-      .order('recorded_at', { ascending: false })
-      .limit(1);
-    setReading(data && data[0] ? data[0] : null);
-    setLoading(false);
+  if (loading) return <p className="text-sm text-muted">Loading…</p>;
+
+  const latest = readings[readings.length - 1];
+
+  if (!latest) {
+    return (
+      <p className="text-sm text-muted">
+        No readings yet. Starts once the Smart Satellite is running.
+      </p>
+    );
   }
 
-  return (
-    <div className="rounded border border-border bg-surface p-4">
-      <div className="mb-3 flex items-center justify-between">
-        <span className="text-xs text-muted">Room</span>
-        {reading && (
-          <span className="font-mono text-xs text-muted">
-            {new Date(reading.recorded_at).toLocaleTimeString([], {
-              hour: '2-digit',
-              minute: '2-digit',
-            })}
-          </span>
-        )}
-      </div>
+  const temps = readings.map((r) => r.temperature_c).filter((v) => v != null);
 
-      {loading ? (
-        <p className="text-sm text-muted">Loading…</p>
-      ) : reading ? (
-        <>
-          <div className="font-mono text-2xl text-ink">{reading.temperature_c}°C</div>
-          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs">
-            <StatusDot label="Satellite" on={reading.satellite_online} />
-            <StatusDot label="Camera" on={reading.camera_online} />
-            <StatusDot label="MQTT hub" on={reading.mqtt_hub_online} />
-          </div>
-        </>
-      ) : (
-        <p className="text-sm text-muted">No readings yet — waiting on the Mechanic hardware.</p>
-      )}
+  return (
+    <div>
+      <div className="flex items-end justify-between">
+        <span className="tnum text-2xl font-medium text-ink">{latest.temperature_c}°</span>
+        {temps.length > 1 && <Sparkline values={temps} width={80} height={22} />}
+      </div>
+      <div className="mt-3 flex flex-col gap-1.5">
+        <Status label="Satellite" on={latest.satellite_online} />
+        <Status label="Camera" on={latest.camera_online} />
+        <Status label="Hub" on={latest.mqtt_hub_online} />
+      </div>
     </div>
   );
 }
 
-function StatusDot({ label, on }) {
+function Status({ label, on }) {
   return (
-    <span className="flex items-center gap-1.5 text-muted">
-      <span className={`h-1.5 w-1.5 rounded-full ${on ? 'bg-good' : 'bg-border'}`} />
-      {label}
-    </span>
+    <div className="flex items-center gap-2 text-xs">
+      <span className={`h-1.5 w-1.5 rounded-full ${on ? 'bg-accent' : 'bg-border'}`} />
+      <span className={on ? 'text-ink' : 'text-faint'}>{label}</span>
+    </div>
   );
 }

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
+import Tile from '@/components/Tile';
 
 const DOT = { good: 'bg-good', warn: 'bg-warn', bad: 'bg-bad', idle: 'bg-border' };
 
@@ -27,11 +28,14 @@ export default function ProjectCard({ project, onChange }) {
   return (
     <div className="rounded border border-border bg-surface p-4 transition-colors hover:border-muted/40">
       <div className="mb-3 flex items-start justify-between gap-3">
-        <div>
+        <div className="flex gap-3">
+          <Tile tag={project.name} />
+          <div>
           <h2 className="text-sm font-medium text-ink">{project.name}</h2>
           <div className="mt-1 flex items-center gap-1.5">
             <span className={`h-1.5 w-1.5 rounded-full ${DOT[project.status_color] || DOT.idle}`} />
             <span className="text-xs text-muted">{project.status_label}</span>
+          </div>
           </div>
         </div>
         <button

@@ -142,17 +142,17 @@ export default function CommandBar() {
     <div className="fixed inset-x-0 bottom-0 border-t border-border bg-surface/95 backdrop-blur">
       <div className="mx-auto max-w-3xl px-4 py-3">
         {result && (
-          <div className="mb-2 rounded border border-border bg-bg p-3 text-sm">
+          <div className="mb-2 animate-row-in rounded border border-border bg-bg p-3 text-sm">
             {result.kind === 'summary' ? (
               <>
-                <div className="mb-2 font-mono text-xs text-muted">
+                <div className="mb-2 text-2xs uppercase tracking-wider text-faint">
                   {result.scope === 'tomorrow' ? 'Tomorrow' : 'Today'} · {result.date}
                 </div>
                 {result.periods.length > 0 && (
                   <div className="mb-2">
                     {result.periods.map((p) => (
                       <div key={p.id} className="flex gap-3 text-ink">
-                        <span className="w-12 font-mono text-xs text-muted">
+                        <span className="tnum w-14 text-xs text-muted">
                           {p.start_time?.slice(0, 5)}
                         </span>
                         {p.subject}
@@ -192,7 +192,7 @@ export default function CommandBar() {
             }
             className="flex-1 rounded border border-border bg-bg px-3 py-2 text-sm text-ink placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-accent disabled:opacity-60"
           />
-          <kbd className="hidden shrink-0 rounded border border-border px-1.5 py-0.5 font-mono text-[10px] text-muted sm:block">
+          <kbd className="hidden shrink-0 rounded border border-border px-1.5 py-0.5 text-[10px] text-faint sm:block">
             ⌘K
           </kbd>
         </form>
