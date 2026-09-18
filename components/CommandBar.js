@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { supabase } from '@/lib/supabaseClient';
+import { Paperclip, ArrowUp, X, Loader2, FileText } from 'lucide-react';
 
 function isoDaysFromNow(n) {
   const d = new Date();
@@ -8,19 +9,32 @@ function isoDaysFromNow(n) {
   return d.toISOString().slice(0, 10);
 }
 
+const TEXT_TYPES = ['text/plain', 'text/markdown', 'text/csv', 'application/json'];
+const MAX_TEXTAREA_HEIGHT = 200;
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = () => reject(new Error('Could not read that file.'));
+    reader.readAsDataURL(file);
+  });
+}
+
 export default function CommandBar() {
   const router = useRouter();
   const [value, setValue] = useState('');
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState(null);
-  const inputRef = useRef(null);
+  const [files, setFiles] = useState([]); // { id, name, text, status: 'reading'|'ready'|'error' }
+  const textareaRef = useRef(null);
+  const fileInputRef = useRef(null);
 
-  // Cmd+K / Ctrl+K focuses the bar from anywhere
   useEffect(() => {
     function onKey(e) {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
-        inputRef.current?.focus();
+        textareaRef.current?.focus();
       }
       if (e.key === 'Escape') setResult(null);
     }
@@ -28,10 +42,73 @@ export default function CommandBar() {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
+  // Auto-grow the textarea as content wraps to new lines.
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, MAX_TEXTAREA_HEIGHT) + 'px';
+  }, [value]);
+
+  async function handleFiles(e) {
+    const picked = Array.from(e.target.files || []);
+    e.target.value = ''; // allow picking the same file again later
+
+    for (const file of picked) {
+      const id = `${file.name}-${Date.now()}-${Math.random()}`;
+      setFiles((prev) => [...prev, { id, name: file.name, text: '', status: 'reading' }]);
+
+      try {
+        let text;
+        if (TEXT_TYPES.includes(file.type) || /\.(txt|md|csv|json)$/i.test(file.name)) {
+          text = await file.text();
+        } else if (file.size > 10 * 1024 * 1024) {
+          throw new Error('Over 10MB');
+        } else {
+          const base64 = await fileToBase64(file);
+          const res = await fetch('/api/studyboy/extract', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ base64, mediaType: file.type }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Could not read that file.');
+          text = data.text;
+        }
+        setFiles((prev) =>
+          prev.map((f) => (f.id === id ? { ...f, text, status: 'ready' } : f)),
+        );
+      } catch (err) {
+        setFiles((prev) =>
+          prev.map((f) => (f.id === id ? { ...f, status: 'error' } : f)),
+        );
+      }
+    }
+  }
+
+  function removeFile(id) {
+    setFiles((prev) => prev.filter((f) => f.id !== id));
+  }
+
+  function handleKeyDown(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit();
+    }
+  }
+
   async function handleSubmit(e) {
-    e.preventDefault();
-    const text = value.trim();
-    if (!text || busy) return;
+    e?.preventDefault?.();
+    const typed = value.trim();
+    const stillReading = files.some((f) => f.status === 'reading');
+    if ((!typed && files.length === 0) || busy || stillReading) return;
+
+    let text = typed;
+    for (const f of files) {
+      if (f.status === 'ready' && f.text) {
+        text += `\n\n--- Attached: ${f.name} ---\n${f.text.slice(0, 8000)}`;
+      }
+    }
 
     setBusy(true);
     setResult(null);
@@ -53,6 +130,7 @@ export default function CommandBar() {
       setResult({ kind: 'error', message: err.message });
     } finally {
       setBusy(false);
+      setFiles([]);
     }
   }
 
@@ -261,6 +339,9 @@ export default function CommandBar() {
     }
   }
 
+  const stillReading = files.some((f) => f.status === 'reading');
+  const canSend = (value.trim() || files.length > 0) && !busy && !stillReading;
+
   return (
     <div className="fixed inset-x-0 bottom-0 border-t border-border bg-surface/95 backdrop-blur">
       <div className="mx-auto max-w-3xl px-4 py-3">
@@ -303,21 +384,87 @@ export default function CommandBar() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="flex items-center gap-3">
-          <input
-            ref={inputRef}
-            type="text"
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-            disabled={busy}
-            placeholder={
-              busy ? 'Working…' : 'Add a task, log to a project, summary for tomorrow…'
-            }
-            className="flex-1 rounded border border-border bg-bg px-3 py-2 text-sm text-ink placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-accent disabled:opacity-60"
-          />
-          <kbd className="hidden shrink-0 rounded border border-border px-1.5 py-0.5 text-[10px] text-faint sm:block">
-            ⌘K
-          </kbd>
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col gap-2 rounded-3xl border border-border bg-bg px-3 py-2.5 shadow-sm focus-within:border-muted/50"
+        >
+          {files.length > 0 && (
+            <div className="flex flex-wrap gap-2 px-1 pt-0.5">
+              {files.map((f) => (
+                <div
+                  key={f.id}
+                  className="flex animate-row-in items-center gap-1.5 rounded-lg border border-border bg-surface py-1 pl-2 pr-1.5 text-xs"
+                >
+                  {f.status === 'reading' ? (
+                    <Loader2 size={13} className="shrink-0 animate-spin text-faint" />
+                  ) : (
+                    <FileText
+                      size={13}
+                      className={`shrink-0 ${f.status === 'error' ? 'text-bad' : 'text-muted'}`}
+                    />
+                  )}
+                  <span className="max-w-[9rem] truncate text-ink">
+                    {f.status === 'error' ? `${f.name} — couldn't read` : f.name}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => removeFile(f.id)}
+                    aria-label={`Remove ${f.name}`}
+                    className="rounded p-0.5 text-faint hover:bg-bg hover:text-ink"
+                  >
+                    <X size={12} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="flex items-end gap-2">
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              accept=".txt,.md,.csv,.json,.pdf,image/*"
+              onChange={handleFiles}
+              className="hidden"
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              aria-label="Attach a file"
+              className="mb-0.5 shrink-0 rounded-full p-1.5 text-faint transition-colors hover:bg-border/50 hover:text-ink"
+            >
+              <Paperclip size={17} />
+            </button>
+
+            <textarea
+              ref={textareaRef}
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+              disabled={busy}
+              rows={1}
+              placeholder={
+                busy ? 'Working…' : 'Add a task, log to a project, attach something, ask for a summary…'
+              }
+              className="max-h-[200px] flex-1 resize-none bg-transparent py-1 text-sm text-ink placeholder:text-faint focus:outline-none disabled:opacity-60"
+            />
+
+            <kbd className="mb-1.5 hidden shrink-0 rounded border border-border px-1.5 py-0.5 text-[10px] text-faint sm:block">
+              ⌘K
+            </kbd>
+
+            <button
+              type="submit"
+              disabled={!canSend}
+              aria-label="Send"
+              className={`mb-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition-colors ${
+                canSend ? 'bg-ink text-bg hover:opacity-85' : 'bg-border text-faint'
+              }`}
+            >
+              {busy ? <Loader2 size={14} className="animate-spin" /> : <ArrowUp size={15} />}
+            </button>
+          </div>
         </form>
       </div>
     </div>
