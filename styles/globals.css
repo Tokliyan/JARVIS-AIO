@@ -2,34 +2,60 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --c-bg: 251 251 250;
+  --c-surface: 255 255 255;
+  --c-border: 230 228 224;
+  --c-rule: 216 213 208;
+  --c-ink: 28 27 25;
+  --c-muted: 110 107 102;
+  --c-faint: 155 151 145;
+  --c-accent: 47 111 78;
+  --c-good: 47 111 78;
+  --c-warn: 180 118 31;
+  --c-bad: 176 67 42;
+}
+
+.dark {
+  --c-bg: 19 19 18;
+  --c-surface: 27 26 24;
+  --c-border: 49 47 44;
+  --c-rule: 61 58 54;
+  --c-ink: 237 235 231;
+  --c-muted: 163 158 151;
+  --c-faint: 118 113 106;
+  --c-accent: 79 163 121;
+  --c-good: 79 163 121;
+  --c-warn: 212 155 74;
+  --c-bad: 214 110 84;
+}
+
 html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  color-scheme: light;
+}
+html.dark {
+  color-scheme: dark;
 }
 
-/* Tabular figures everywhere numbers appear in columns, so they line up
-   without needing a monospace face to do the work. */
 .tnum {
   font-variant-numeric: tabular-nums;
   font-feature-settings: 'tnum' 1;
 }
 
-/* Dotted rule — the divider treatment from the reference. */
 .rule-dotted {
-  border-bottom: 1px dotted theme('colors.rule');
+  border-bottom: 1px dotted rgb(var(--c-rule));
 }
 
-/* Visible keyboard focus, never removed. */
 :focus-visible {
-  outline: 2px solid theme('colors.accent');
+  outline: 2px solid rgb(var(--c-accent));
   outline-offset: 2px;
   border-radius: 3px;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

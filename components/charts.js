@@ -8,13 +8,13 @@ export function ProgressRing({ done, total, size = 44 }) {
   return (
     <div className="relative shrink-0" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#E6E4E0" strokeWidth="3" />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgb(var(--c-border))" strokeWidth="3" />
         <circle
           cx={size / 2}
           cy={size / 2}
           r={r}
           fill="none"
-          stroke="#2F6F4E"
+          stroke="rgb(var(--c-accent))"
           strokeWidth="3"
           strokeLinecap="round"
           strokeDasharray={c}
@@ -62,7 +62,7 @@ export function Sparkline({ values, width = 96, height = 24 }) {
       <polyline
         points={points}
         fill="none"
-        stroke="#2F6F4E"
+        stroke="rgb(var(--c-accent))"
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"

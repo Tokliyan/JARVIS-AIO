@@ -127,7 +127,7 @@ export default function Checklist() {
                 type="checkbox"
                 checked={item.status === 'done'}
                 onChange={() => toggleDone(item)}
-                className="h-3.5 w-3.5 accent-[#2F6F4E]"
+                className="h-3.5 w-3.5 accent-accent"
               />
               <span className={`h-1.5 w-1.5 rounded-full ${PRIORITY_DOT[item.priority]}`} />
               <Tile tag={item.tag} size="sm" />

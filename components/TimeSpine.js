@@ -138,7 +138,7 @@ export default function TimeSpine() {
                       type="checkbox"
                       checked={item.status === 'done'}
                       onChange={() => toggle(item.raw)}
-                      className="h-3.5 w-3.5 accent-[#2F6F4E]"
+                      className="h-3.5 w-3.5 accent-accent"
                       aria-label={item.title}
                     />
                     <Tile tag={item.tag} size="sm" />
