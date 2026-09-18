@@ -13,9 +13,9 @@ export default function App({ Component, pageProps }) {
 
   return (
     <AuthGate>
-      <div className="flex min-h-screen">
+      <div className="flex min-h-screen flex-col md:flex-row">
         <Sidebar />
-        <main className="flex-1 px-8 py-6 pb-24">
+        <main className="flex-1 px-4 py-6 pb-28 md:px-8">
           <Component {...pageProps} />
         </main>
       </div>

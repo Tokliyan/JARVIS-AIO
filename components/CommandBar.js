@@ -111,6 +111,79 @@ export default function CommandBar() {
         break;
       }
 
+      case 'log_project': {
+        const { data } = await supabase
+          .from('aio_projects')
+          .select('id, name')
+          .ilike('name', `%${intent.project_match}%`)
+          .limit(1);
+        if (!data || data.length === 0) {
+          return setResult({
+            kind: 'error',
+            message: `No project matching "${intent.project_match}".`,
+          });
+        }
+        const { error } = await supabase.from('aio_project_updates').insert({
+          project_id: data[0].id,
+          kind: intent.kind || 'note',
+          body: intent.body,
+        });
+        if (error) return setResult({ kind: 'error', message: error.message });
+        setResult({ kind: 'ok', message: `Logged to ${data[0].name}.` });
+        setValue('');
+        router.replace(router.asPath, undefined, { scroll: false });
+        break;
+      }
+
+      case 'complete_routine': {
+        const { data } = await supabase
+          .from('aio_routine_defs')
+          .select('*')
+          .ilike('name', `%${intent.routine_match}%`)
+          .eq('active', true)
+          .limit(1);
+        if (!data || data.length === 0) {
+          return setResult({
+            kind: 'error',
+            message: `No routine matching "${intent.routine_match}".`,
+          });
+        }
+        const { error } = await supabase.from('aio_routines').insert({
+          routine_name: data[0].name,
+          recurrence_days: data[0].recurrence_days,
+          completed_at: new Date().toISOString().slice(0, 10),
+        });
+        setResult({
+          kind: 'ok',
+          message: error
+            ? `${data[0].name} was already ticked off today.`
+            : `${data[0].name} done.`,
+        });
+        setValue('');
+        router.replace(router.asPath, undefined, { scroll: false });
+        break;
+      }
+
+      case 'add_routine': {
+        const { error } = await supabase.from('aio_routine_defs').insert({
+          name: intent.name,
+          time_of_day: intent.time_of_day || 'anytime',
+          recurrence_days: intent.recurrence_days || 1,
+        });
+        if (error) return setResult({ kind: 'error', message: error.message });
+        setResult({ kind: 'ok', message: `Added routine: ${intent.name}` });
+        setValue('');
+        router.replace(router.asPath, undefined, { scroll: false });
+        break;
+      }
+
+      case 'open_studyboy': {
+        setValue('');
+        setResult({ kind: 'ok', message: 'Opening Studyboy — pick your material there.' });
+        router.push('/studyboy');
+        break;
+      }
+
       case 'summary': {
         const target = intent.scope === 'tomorrow' ? isoDaysFromNow(1) : isoDaysFromNow(0);
         const dayNum = new Date(target).getDay();
@@ -188,7 +261,7 @@ export default function CommandBar() {
             onChange={(e) => setValue(e.target.value)}
             disabled={busy}
             placeholder={
-              busy ? 'Working…' : 'Add this to the timetable, give me a summary for tomorrow…'
+              busy ? 'Working…' : 'Add a task, log to a project, summary for tomorrow…'
             }
             className="flex-1 rounded border border-border bg-bg px-3 py-2 text-sm text-ink placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-accent disabled:opacity-60"
           />

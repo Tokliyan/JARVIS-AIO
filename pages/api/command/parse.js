@@ -12,11 +12,18 @@ Available actions:
 - complete_checklist: { "action": "complete_checklist", "match": string }  // text to match against existing task titles
 - add_period: { "action": "add_period", "subject": string, "day_of_week": 1-5, "period_number": number, "start_time": "HH:MM", "end_time": "HH:MM", "room": string or null }
 - summary: { "action": "summary", "scope": "today"|"tomorrow" }
+- log_project: { "action": "log_project", "project_match": string, "kind": "shipped"|"issue"|"note"|"milestone", "body": string }
+- complete_routine: { "action": "complete_routine", "routine_match": string }
+- add_routine: { "action": "add_routine", "name": string, "time_of_day": "morning"|"evening"|"anytime", "recurrence_days": number }
+- open_studyboy: { "action": "open_studyboy", "mode": "past_paper"|"study_guide"|"flashcards"|"quiz"|"study_plan" }
 - unknown: { "action": "unknown", "reason": string }
 
 Tags should be one of: School, Rade.XT, RuneHaven, LeadLens, Ambient Intelligence, General.
 For school subjects use "School · <Subject>", e.g. "School · Maths".
 day_of_week: 1=Monday through 5=Friday.
+
+For log_project, project_match is text to match a project name — the projects are Rade.XT, RuneHaven, LeadLens AI, and Ambient Intelligence. Default kind to "shipped" if they describe finishing something, "issue" if something broke, otherwise "note".
+For open_studyboy, use it when they ask to make study material but haven't given source material in the command itself — they need to go to the Studyboy page to pick their material first.
 Default priority to "med" if not implied. Default due_date to null if no date is mentioned.`;
 
 export default async function handler(req, res) {

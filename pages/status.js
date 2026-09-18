@@ -28,7 +28,7 @@ export default function StatusPage() {
           </div>
           <div>
             <SectionLabel>Routines</SectionLabel>
-            <RoutineStreaks />
+            <RoutineStreaks manage />
           </div>
           <div>
             <SectionLabel>Needs attention</SectionLabel>
