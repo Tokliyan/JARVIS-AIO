@@ -94,14 +94,62 @@ export default function WeekGrid() {
     setShowForm(true);
   }
 
+  const SCHOOL_END_MINUTES = 15 * 60 + 15; // 3:15pm
+
   function periodsForDay(dayNum) {
     const all = periods.filter((p) => p.day_of_week === dayNum);
-    if (showFull) return all;
-    return all.filter((p) => !p.week_type || p.week_type === currentWeek);
+    const visible = showFull ? all : all.filter((p) => !p.week_type || p.week_type === currentWeek);
+    return {
+      school: visible.filter((p) => toMinutes(p.end_time) <= SCHOOL_END_MINUTES),
+      after: visible.filter((p) => toMinutes(p.end_time) > SCHOOL_END_MINUTES),
+    };
   }
 
   const nowMins = now.getHours() * 60 + now.getMinutes();
-  const visibleCount = DAYS.reduce((sum, d) => sum + periodsForDay(d.n).length, 0);
+  const visibleCount = DAYS.reduce((sum, d) => {
+    const { school, after } = periodsForDay(d.n);
+    return sum + school.length + after.length;
+  }, 0);
+
+  function renderPeriod(p, isToday) {
+    const live =
+      isToday &&
+      !showFull &&
+      (!p.week_type || p.week_type === currentWeek) &&
+      toMinutes(p.start_time) <= nowMins &&
+      toMinutes(p.end_time) >= nowMins;
+    const past = isToday && !showFull && toMinutes(p.end_time) < nowMins;
+
+    return (
+      <div
+        key={p.id}
+        className={`group relative rounded p-2 transition-colors ${
+          live ? 'bg-accent/8 ring-1 ring-accent/30' : past ? 'bg-bg opacity-55' : 'bg-bg hover:bg-border/40'
+        }`}
+      >
+        <div className="flex items-baseline justify-between gap-1">
+          <span className={`truncate text-xs ${live ? 'font-medium text-ink' : 'text-ink'}`}>
+            {p.subject}
+          </span>
+          {live && <span className="shrink-0 text-2xs text-accent">now</span>}
+          {!live && p.week_type && (
+            <span className="shrink-0 rounded bg-border px-1 text-2xs text-muted">{p.week_type}</span>
+          )}
+        </div>
+        <div className="tnum mt-0.5 text-2xs text-faint">
+          {fmt(p.start_time)}
+          {p.room ? ` · ${p.room}` : ''}
+        </div>
+        <button
+          onClick={() => removePeriod(p.id)}
+          aria-label={`Remove ${p.subject}`}
+          className="absolute right-1 top-1 text-faint opacity-0 transition-opacity hover:text-bad group-hover:opacity-100"
+        >
+          ×
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -217,6 +265,9 @@ export default function WeekGrid() {
           const isToday = day.n === todayNum;
           const dayPeriods = periodsForDay(day.n);
 
+          const { school, after } = periodsForDay(day.n);
+          const total = school.length + after.length;
+
           return (
             <div
               key={day.n}
@@ -233,10 +284,10 @@ export default function WeekGrid() {
                 >
                   {day.short}
                 </span>
-                <span className="tnum text-2xs text-faint">{dayPeriods.length || ''}</span>
+                <span className="tnum text-2xs text-faint">{total || ''}</span>
               </div>
 
-              {dayPeriods.length === 0 ? (
+              {total === 0 ? (
                 <button
                   onClick={() => openFormFor(day.n)}
                   className="w-full rounded border border-dashed border-border py-3 text-xs text-faint transition-colors hover:border-rule hover:text-muted"
@@ -245,54 +296,18 @@ export default function WeekGrid() {
                 </button>
               ) : (
                 <div className="flex flex-col gap-1.5">
-                  {dayPeriods.map((p) => {
-                    const live =
-                      isToday &&
-                      !showFull &&
-                      (!p.week_type || p.week_type === currentWeek) &&
-                      toMinutes(p.start_time) <= nowMins &&
-                      toMinutes(p.end_time) >= nowMins;
-                    const past =
-                      isToday && !showFull && toMinutes(p.end_time) < nowMins;
-
-                    return (
-                      <div
-                        key={p.id}
-                        className={`group relative rounded p-2 transition-colors ${
-                          live
-                            ? 'bg-accent/8 ring-1 ring-accent/30'
-                            : past
-                              ? 'bg-bg opacity-55'
-                              : 'bg-bg hover:bg-border/40'
-                        }`}
-                      >
-                        <div className="flex items-baseline justify-between gap-1">
-                          <span
-                            className={`truncate text-xs ${live ? 'font-medium text-ink' : 'text-ink'}`}
-                          >
-                            {p.subject}
-                          </span>
-                          {live && <span className="shrink-0 text-2xs text-accent">now</span>}
-                          {!live && p.week_type && (
-                            <span className="shrink-0 rounded bg-border px-1 text-2xs text-muted">
-                              {p.week_type}
-                            </span>
-                          )}
-                        </div>
-                        <div className="tnum mt-0.5 text-2xs text-faint">
-                          {fmt(p.start_time)}
-                          {p.room ? ` · ${p.room}` : ''}
-                        </div>
-                        <button
-                          onClick={() => removePeriod(p.id)}
-                          aria-label={`Remove ${p.subject}`}
-                          className="absolute right-1 top-1 text-faint opacity-0 transition-opacity hover:text-bad group-hover:opacity-100"
-                        >
-                          ×
-                        </button>
+                  {school.map((p) => renderPeriod(p, isToday))}
+                  {after.length > 0 && (
+                    <>
+                      <div className="mt-1 flex items-center gap-2 pt-1">
+                        <span className="text-2xs uppercase tracking-wider text-faint">
+                          After school
+                        </span>
+                        <span className="h-px flex-1 bg-rule" />
                       </div>
-                    );
-                  })}
+                      {after.map((p) => renderPeriod(p, isToday))}
+                    </>
+                  )}
                 </div>
               )}
             </div>

@@ -19,6 +19,7 @@ Available actions:
 - complete_routine: { "action": "complete_routine", "routine_match": string }
 - add_routine: { "action": "add_routine", "name": string, "time_of_day": "morning"|"evening"|"anytime", "recurrence_days": number }
 - open_studyboy: { "action": "open_studyboy", "mode": "past_paper"|"study_guide"|"flashcards"|"quiz"|"study_plan" }
+- feature_request: { "action": "feature_request", "summary": string }
 - unknown: { "action": "unknown", "reason": string }
 
 Tags should be one of: School, Rade.XT, RuneHaven, LeadLens, Ambient Intelligence, General.
@@ -27,7 +28,8 @@ day_of_week: 1=Monday through 5=Friday.
 
 For log_project, project_match is text to match a project name — the projects are Rade.XT, RuneHaven, LeadLens AI, and Ambient Intelligence. Default kind to "shipped" if they describe finishing something, "issue" if something broke, otherwise "note".
 For open_studyboy, use it when they ask to make study material but haven't given source material in the command itself — they need to go to the Studyboy page to pick their material first.
-For update_project, this can rename a project or change its status — this IS a real database field, unlike the site's own name which is not stored anywhere and cannot be changed this way. If asked to rename "the whole site", "the app", "everything", or similar (not a specific named project), respond with action "unknown" and explain that's a code-level change, not a database one.
+For update_project, this can rename a project or change its status — this IS a real database field, unlike the site's own name which is not stored anywhere and cannot be changed this way.
+Use feature_request whenever the command describes a UI, layout, or code change to this app itself rather than a data operation — e.g. "separate X from Y on the timetable page", "add a dark mode", "make the sidebar collapsible", "rename the whole site". This is not something the command bar can build live (that requires an actual development session with build verification, not a runtime database write), so instead of attempting it or just refusing, capture it as a short, clear one-line summary suitable for a project roadmap. Reserve "unknown" only for genuinely unclear or nonsensical input, not for valid feature ideas.
 Default priority to "med" if not implied. Default due_date to null if no date is mentioned.
 
 The timetable supports a rotating fortnightly A/B schedule via the "week" field on each period. Use "week": null for a class that happens every week regardless of rotation. Only set "A" or "B" if the student's message actually describes a rotating/alternating schedule (e.g. "Period 3 is Maths on A week and Science on B week").

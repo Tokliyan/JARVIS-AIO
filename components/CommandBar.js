@@ -415,6 +415,32 @@ export default function CommandBar() {
         break;
       }
 
+      case 'feature_request': {
+        const { data } = await supabase
+          .from('aio_projects')
+          .select('id, roadmap')
+          .eq('name', 'Ambient Intelligence')
+          .limit(1);
+        if (data && data.length > 0) {
+          const roadmap = Array.isArray(data[0].roadmap) ? data[0].roadmap : [];
+          await supabase
+            .from('aio_projects')
+            .update({
+              roadmap: [
+                ...roadmap,
+                { title: intent.summary, status: 'planned', detail: 'Requested via command bar' },
+              ],
+            })
+            .eq('id', data[0].id);
+        }
+        setResult({
+          kind: 'ok',
+          message: `Saved to Ambient Intelligence's roadmap: "${intent.summary}" — needs an actual build session, not something I can do live.`,
+        });
+        setValue('');
+        break;
+      }
+
       default:
         setResult({
           kind: 'error',
