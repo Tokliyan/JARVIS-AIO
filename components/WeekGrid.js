@@ -17,6 +17,7 @@ const EMPTY = {
   teacher: '',
   start_time: '',
   end_time: '',
+  week_type: '',
 };
 
 function toMinutes(t) {
@@ -39,8 +40,11 @@ export default function WeekGrid() {
   const [form, setForm] = useState(EMPTY);
   const [showForm, setShowForm] = useState(false);
   const [now, setNow] = useState(new Date());
+  const [currentWeek, setCurrentWeek] = useState('A');
+  const [showFull, setShowFull] = useState(false);
 
   const todayNum = now.getDay();
+  const hasRotation = periods.some((p) => p.week_type);
 
   useEffect(() => {
     load();
@@ -50,13 +54,21 @@ export default function WeekGrid() {
 
   async function load() {
     setLoading(true);
-    const { data } = await supabase
-      .from('aio_timetable')
-      .select('*')
-      .order('day_of_week')
-      .order('start_time');
-    setPeriods(data || []);
+    const [{ data: p }, { data: s }] = await Promise.all([
+      supabase.from('aio_timetable').select('*').order('day_of_week').order('start_time'),
+      supabase.from('aio_settings').select('value').eq('key', 'current_week').maybeSingle(),
+    ]);
+    setPeriods(p || []);
+    if (s?.value) setCurrentWeek(s.value);
     setLoading(false);
+  }
+
+  async function toggleWeek() {
+    const next = currentWeek === 'A' ? 'B' : 'A';
+    setCurrentWeek(next);
+    await supabase
+      .from('aio_settings')
+      .upsert({ key: 'current_week', value: next }, { onConflict: 'user_id,key' });
   }
 
   async function addPeriod(e) {
@@ -66,6 +78,7 @@ export default function WeekGrid() {
       ...form,
       day_of_week: Number(form.day_of_week),
       period_number: Number(form.period_number) || 1,
+      week_type: form.week_type || null,
     });
     setForm({ ...EMPTY, day_of_week: form.day_of_week });
     load();
@@ -81,21 +94,53 @@ export default function WeekGrid() {
     setShowForm(true);
   }
 
+  function periodsForDay(dayNum) {
+    const all = periods.filter((p) => p.day_of_week === dayNum);
+    if (showFull) return all;
+    return all.filter((p) => !p.week_type || p.week_type === currentWeek);
+  }
+
   const nowMins = now.getHours() * 60 + now.getMinutes();
-  const total = periods.length;
+  const visibleCount = DAYS.reduce((sum, d) => sum + periodsForDay(d.n).length, 0);
 
   return (
     <div>
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <p className="text-sm text-muted">
-          {loading ? 'Loading…' : `${total} period${total === 1 ? '' : 's'} this week`}
+          {loading
+            ? 'Loading…'
+            : `${visibleCount} period${visibleCount === 1 ? '' : 's'}${showFull ? ' total' : ' this week'}`}
         </p>
-        <button
-          onClick={() => (showForm ? setShowForm(false) : openFormFor(todayNum >= 1 && todayNum <= 5 ? todayNum : 1))}
-          className="rounded border border-border px-3 py-1.5 text-sm text-ink transition-colors hover:bg-bg"
-        >
-          {showForm ? 'Cancel' : 'Add period'}
-        </button>
+
+        <div className="flex flex-wrap items-center gap-2">
+          {hasRotation && !showFull && (
+            <button
+              onClick={toggleWeek}
+              className="rounded border border-border px-3 py-1.5 text-sm text-ink transition-colors hover:bg-bg"
+              title="Click to flip which week is current"
+            >
+              Week <span className="font-medium text-accent">{currentWeek}</span>
+            </button>
+          )}
+          <button
+            onClick={() => setShowFull((s) => !s)}
+            className={`rounded border px-3 py-1.5 text-sm transition-colors ${
+              showFull
+                ? 'border-accent/40 bg-accent/10 text-ink'
+                : 'border-border text-ink hover:bg-bg'
+            }`}
+          >
+            {showFull ? 'Showing full timetable' : 'Full timetable'}
+          </button>
+          <button
+            onClick={() =>
+              showForm ? setShowForm(false) : openFormFor(todayNum >= 1 && todayNum <= 5 ? todayNum : 1)
+            }
+            className="rounded border border-border px-3 py-1.5 text-sm text-ink transition-colors hover:bg-bg"
+          >
+            {showForm ? 'Cancel' : 'Add period'}
+          </button>
+        </div>
       </div>
 
       {showForm && (
@@ -113,6 +158,16 @@ export default function WeekGrid() {
                 {d.long}
               </option>
             ))}
+          </select>
+          <select
+            value={form.week_type}
+            onChange={(e) => setForm({ ...form, week_type: e.target.value })}
+            className="rounded border border-border bg-bg px-2 py-1.5 text-sm"
+            title="Only needed if this class rotates on a fortnightly A/B schedule"
+          >
+            <option value="">Every week</option>
+            <option value="A">Week A only</option>
+            <option value="B">Week B only</option>
           </select>
           <input
             value={form.subject}
@@ -150,13 +205,17 @@ export default function WeekGrid() {
           >
             Save
           </button>
+          <p className="w-full text-2xs text-faint">
+            Tip: the command bar can add a whole timetable at once — paste it in and attach a
+            photo of it if you have one.
+          </p>
         </form>
       )}
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-5">
         {DAYS.map((day, di) => {
           const isToday = day.n === todayNum;
-          const dayPeriods = periods.filter((p) => p.day_of_week === day.n);
+          const dayPeriods = periodsForDay(day.n);
 
           return (
             <div
@@ -189,9 +248,12 @@ export default function WeekGrid() {
                   {dayPeriods.map((p) => {
                     const live =
                       isToday &&
+                      !showFull &&
+                      (!p.week_type || p.week_type === currentWeek) &&
                       toMinutes(p.start_time) <= nowMins &&
                       toMinutes(p.end_time) >= nowMins;
-                    const past = isToday && toMinutes(p.end_time) < nowMins;
+                    const past =
+                      isToday && !showFull && toMinutes(p.end_time) < nowMins;
 
                     return (
                       <div
@@ -211,6 +273,11 @@ export default function WeekGrid() {
                             {p.subject}
                           </span>
                           {live && <span className="shrink-0 text-2xs text-accent">now</span>}
+                          {!live && p.week_type && (
+                            <span className="shrink-0 rounded bg-border px-1 text-2xs text-muted">
+                              {p.week_type}
+                            </span>
+                          )}
                         </div>
                         <div className="tnum mt-0.5 text-2xs text-faint">
                           {fmt(p.start_time)}

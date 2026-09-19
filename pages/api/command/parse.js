@@ -10,7 +10,8 @@ Respond with ONLY a JSON object, no markdown fences, no preamble.
 Available actions:
 - add_checklist: { "action": "add_checklist", "title": string, "tag": string, "due_date": "YYYY-MM-DD" or null, "priority": "low"|"med"|"high" }
 - complete_checklist: { "action": "complete_checklist", "match": string }  // text to match against existing task titles
-- add_period: { "action": "add_period", "subject": string, "day_of_week": 1-5, "period_number": number, "start_time": "HH:MM", "end_time": "HH:MM", "room": string or null }
+- add_period: { "action": "add_period", "subject": string, "day_of_week": 1-5, "period_number": number, "start_time": "HH:MM", "end_time": "HH:MM", "room": string or null, "week": "A"|"B"|null }
+- bulk_add_periods: { "action": "bulk_add_periods", "periods": [ { "subject": string, "day_of_week": 1-5, "period_number": number, "start_time": "HH:MM", "end_time": "HH:MM", "room": string or null, "week": "A"|"B"|null } ] }
 - summary: { "action": "summary", "scope": "today"|"tomorrow" }
 - log_project: { "action": "log_project", "project_match": string, "kind": "shipped"|"issue"|"note"|"milestone", "body": string }
 - update_project: { "action": "update_project", "project_match": string, "field": "name"|"status_label"|"status_color"|"last_update"|"next_milestone", "value": string }
@@ -27,7 +28,10 @@ day_of_week: 1=Monday through 5=Friday.
 For log_project, project_match is text to match a project name — the projects are Rade.XT, RuneHaven, LeadLens AI, and Ambient Intelligence. Default kind to "shipped" if they describe finishing something, "issue" if something broke, otherwise "note".
 For open_studyboy, use it when they ask to make study material but haven't given source material in the command itself — they need to go to the Studyboy page to pick their material first.
 For update_project, this can rename a project or change its status — this IS a real database field, unlike the site's own name which is not stored anywhere and cannot be changed this way. If asked to rename "the whole site", "the app", "everything", or similar (not a specific named project), respond with action "unknown" and explain that's a code-level change, not a database one.
-Default priority to "med" if not implied. Default due_date to null if no date is mentioned.`;
+Default priority to "med" if not implied. Default due_date to null if no date is mentioned.
+
+The timetable supports a rotating fortnightly A/B schedule via the "week" field on each period. Use "week": null for a class that happens every week regardless of rotation. Only set "A" or "B" if the student's message actually describes a rotating/alternating schedule (e.g. "Period 3 is Maths on A week and Science on B week").
+Use bulk_add_periods whenever more than one period is being described in a single message — e.g. a pasted timetable, a photo of one, or a list like "Monday: English 9-10, Maths 10-11". Use add_period only for a single period. Do not ask the student to repeat themselves one period at a time when they've already given you the whole thing at once — extract every period you can from what they gave you, even from a messy or partial photo transcription.`;
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {

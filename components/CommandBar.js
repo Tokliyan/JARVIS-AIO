@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { supabase } from '@/lib/supabaseClient';
-import { Paperclip, ArrowUp, X, Loader2, FileText } from 'lucide-react';
+import { Paperclip, ArrowUp, X, Loader2, FileText, ImageDown } from 'lucide-react';
 
 function isoDaysFromNow(n) {
   const d = new Date();
@@ -21,12 +21,32 @@ function fileToBase64(file) {
   });
 }
 
+const MIN_DIMENSION = 60; // below this in either direction, treat as unreadable
+
+function checkImageResolution(file) {
+  return new Promise((resolve) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      resolve(img.width >= MIN_DIMENSION && img.height >= MIN_DIMENSION);
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      resolve(true); // can't tell — let the extraction step be the real check
+    };
+    img.src = url;
+  });
+}
+
 export default function CommandBar() {
   const router = useRouter();
   const [value, setValue] = useState('');
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState(null);
   const [files, setFiles] = useState([]); // { id, name, text, status: 'reading'|'ready'|'error' }
+  const [dragging, setDragging] = useState(false);
+  const dragCounter = useRef(0);
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
 
@@ -50,20 +70,26 @@ export default function CommandBar() {
     el.style.height = Math.min(el.scrollHeight, MAX_TEXTAREA_HEIGHT) + 'px';
   }, [value]);
 
-  async function handleFiles(e) {
-    const picked = Array.from(e.target.files || []);
-    e.target.value = ''; // allow picking the same file again later
+  async function ingestFiles(fileList) {
+    const picked = Array.from(fileList || []);
 
     for (const file of picked) {
       const id = `${file.name}-${Date.now()}-${Math.random()}`;
       setFiles((prev) => [...prev, { id, name: file.name, text: '', status: 'reading' }]);
 
       try {
+        if (file.type.startsWith('image/')) {
+          const bigEnough = await checkImageResolution(file);
+          if (!bigEnough) {
+            throw new Error('lowres');
+          }
+        }
+
         let text;
         if (TEXT_TYPES.includes(file.type) || /\.(txt|md|csv|json)$/i.test(file.name)) {
           text = await file.text();
         } else if (file.size > 10 * 1024 * 1024) {
-          throw new Error('Over 10MB');
+          throw new Error('toobig');
         } else {
           const base64 = await fileToBase64(file);
           const res = await fetch('/api/studyboy/extract', {
@@ -79,15 +105,51 @@ export default function CommandBar() {
           prev.map((f) => (f.id === id ? { ...f, text, status: 'ready' } : f)),
         );
       } catch (err) {
+        const reason =
+          err.message === 'lowres'
+            ? 'too low-res to read'
+            : err.message === 'toobig'
+              ? 'over 10MB'
+              : "couldn't read";
         setFiles((prev) =>
-          prev.map((f) => (f.id === id ? { ...f, status: 'error' } : f)),
+          prev.map((f) => (f.id === id ? { ...f, status: 'error', errorReason: reason } : f)),
         );
       }
     }
   }
 
+  function handleFileInput(e) {
+    ingestFiles(e.target.files);
+    e.target.value = ''; // allow picking the same file again later
+  }
+
   function removeFile(id) {
     setFiles((prev) => prev.filter((f) => f.id !== id));
+  }
+
+  function handleDragEnter(e) {
+    e.preventDefault();
+    if (e.dataTransfer.types?.includes('Files')) {
+      dragCounter.current += 1;
+      setDragging(true);
+    }
+  }
+  function handleDragOver(e) {
+    e.preventDefault();
+  }
+  function handleDragLeave(e) {
+    e.preventDefault();
+    dragCounter.current -= 1;
+    if (dragCounter.current <= 0) {
+      dragCounter.current = 0;
+      setDragging(false);
+    }
+  }
+  function handleDrop(e) {
+    e.preventDefault();
+    dragCounter.current = 0;
+    setDragging(false);
+    if (e.dataTransfer.files?.length) ingestFiles(e.dataTransfer.files);
   }
 
   function handleKeyDown(e) {
@@ -181,9 +243,31 @@ export default function CommandBar() {
           start_time: intent.start_time,
           end_time: intent.end_time,
           room: intent.room || null,
+          week_type: intent.week || null,
         });
         if (error) return setResult({ kind: 'error', message: error.message });
         setResult({ kind: 'ok', message: `Added ${intent.subject} to the timetable.` });
+        setValue('');
+        router.replace(router.asPath, undefined, { scroll: false });
+        break;
+      }
+
+      case 'bulk_add_periods': {
+        const rows = (intent.periods || []).map((p) => ({
+          subject: p.subject,
+          day_of_week: p.day_of_week,
+          period_number: p.period_number || 1,
+          start_time: p.start_time,
+          end_time: p.end_time,
+          room: p.room || null,
+          week_type: p.week || null,
+        }));
+        if (rows.length === 0) {
+          return setResult({ kind: 'error', message: "Couldn't find any periods in that." });
+        }
+        const { error } = await supabase.from('aio_timetable').insert(rows);
+        if (error) return setResult({ kind: 'error', message: error.message });
+        setResult({ kind: 'ok', message: `Added ${rows.length} periods to the timetable.` });
         setValue('');
         router.replace(router.asPath, undefined, { scroll: false });
         break;
@@ -386,8 +470,22 @@ export default function CommandBar() {
 
         <form
           onSubmit={handleSubmit}
-          className="flex flex-col gap-2 rounded-3xl border border-border bg-bg px-3 py-2.5 shadow-sm focus-within:border-muted/50"
+          onDragEnter={handleDragEnter}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          className={`relative flex flex-col gap-2 rounded-3xl border bg-bg px-3 py-2.5 shadow-sm transition-colors focus-within:border-muted/50 ${
+            dragging ? 'border-accent bg-accent/5' : 'border-border'
+          }`}
         >
+          {dragging && (
+            <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-3xl bg-bg/90">
+              <span className="flex items-center gap-2 text-sm font-medium text-accent">
+                <ImageDown size={16} />
+                Drop to attach
+              </span>
+            </div>
+          )}
           {files.length > 0 && (
             <div className="flex flex-wrap gap-2 px-1 pt-0.5">
               {files.map((f) => (
@@ -404,7 +502,7 @@ export default function CommandBar() {
                     />
                   )}
                   <span className="max-w-[9rem] truncate text-ink">
-                    {f.status === 'error' ? `${f.name} — couldn't read` : f.name}
+                    {f.status === 'error' ? `${f.name} — ${f.errorReason || "couldn't read"}` : f.name}
                   </span>
                   <button
                     type="button"
@@ -425,7 +523,7 @@ export default function CommandBar() {
               type="file"
               multiple
               accept=".txt,.md,.csv,.json,.pdf,image/*"
-              onChange={handleFiles}
+              onChange={handleFileInput}
               className="hidden"
             />
             <button
