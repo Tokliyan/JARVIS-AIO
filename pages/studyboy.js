@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import SourceMaterial from '@/components/SourceMaterial';
 import Generator from '@/components/Generator';
 import StudyboyHistory from '@/components/StudyboyHistory';
+import StudyResources from '@/components/StudyResources';
 import { SUBJECTS } from '@/lib/subjects';
 
 const TABS = ['Create', 'History'];
@@ -68,6 +69,7 @@ export default function StudyboyPage() {
 
       {tab === 'Create' ? (
         <div className="flex animate-row-in flex-col gap-4">
+          <StudyResources subject={subject} />
           <SourceMaterial
             subject={subject}
             setSubject={setSubject}

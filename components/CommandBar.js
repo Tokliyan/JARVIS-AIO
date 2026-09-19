@@ -186,7 +186,7 @@ export default function CommandBar() {
       if (!res.ok) {
         setResult({ kind: 'error', message: intent.error || 'Something went wrong.' });
       } else {
-        await runIntent(intent);
+        await runIntent(intent, text);
       }
     } catch (err) {
       setResult({ kind: 'error', message: err.message });
@@ -196,7 +196,7 @@ export default function CommandBar() {
     }
   }
 
-  async function runIntent(intent) {
+  async function runIntent(intent, rawText) {
     switch (intent.action) {
       case 'add_checklist': {
         const { error } = await supabase.from('aio_checklist').insert({
@@ -412,6 +412,79 @@ export default function CommandBar() {
           tasks: tasks || [],
           periods: periods || [],
         });
+        break;
+      }
+
+      case 'process_notification': {
+        const subjects = intent.subjects?.length ? intent.subjects : ['General'];
+
+        // Save a copy into each relevant subject's saved material.
+        await supabase.from('aio_studyboy_docs').insert(
+          subjects.map((subj) => ({
+            subject: subj,
+            file_name: `Notification — ${new Date().toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })}`,
+            source: 'command_bar',
+            ocr_text: rawText,
+          })),
+        );
+
+        // Add any real action items to the checklist.
+        const items = intent.checklist_items || [];
+        if (items.length > 0) {
+          await supabase.from('aio_checklist').insert(
+            items.map((it) => ({
+              title: it.title,
+              tag: `School · ${subjects[0]}`,
+              due_date: it.due_date || null,
+              priority: it.priority || 'med',
+            })),
+          );
+        }
+
+        // If it's clearly a dated assessment, build a study plan from it too.
+        let planNote = '';
+        if (intent.has_assessment && intent.assessment_date) {
+          try {
+            const planRes = await fetch('/api/studyboy/generate', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                mode: 'study_plan',
+                subject: subjects[0],
+                sourceText: rawText,
+                assessmentDate: intent.assessment_date,
+                today: new Date().toISOString().slice(0, 10),
+              }),
+            });
+            const plan = await planRes.json();
+            if (planRes.ok && plan.steps?.length) {
+              await supabase.from('aio_checklist').insert(
+                plan.steps.map((s) => ({
+                  title: s.title,
+                  tag: `School · ${subjects[0]}`,
+                  due_date: s.date,
+                  priority: 'med',
+                })),
+              );
+              await supabase.from('aio_studyboy_outputs').insert({
+                subject: subjects[0],
+                mode: 'study_plan',
+                title: `${subjects[0]} — plan for ${intent.assessment_date}`,
+                payload: plan,
+              });
+              planNote = ` Built a ${plan.steps.length}-step study plan too — check Studyboy's history.`;
+            }
+          } catch {
+            // plan generation failing shouldn't block the save/checklist part
+          }
+        }
+
+        setResult({
+          kind: 'ok',
+          message: `Saved to ${subjects.join(', ')}${items.length ? `, added ${items.length} task${items.length === 1 ? '' : 's'}` : ''}.${planNote}`,
+        });
+        setValue('');
+        router.replace(router.asPath, undefined, { scroll: false });
         break;
       }
 

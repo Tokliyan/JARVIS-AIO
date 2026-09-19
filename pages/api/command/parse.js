@@ -20,6 +20,7 @@ Available actions:
 - add_routine: { "action": "add_routine", "name": string, "time_of_day": "morning"|"evening"|"anytime", "recurrence_days": number }
 - open_studyboy: { "action": "open_studyboy", "mode": "past_paper"|"study_guide"|"flashcards"|"quiz"|"study_plan" }
 - feature_request: { "action": "feature_request", "summary": string }
+- process_notification: { "action": "process_notification", "subjects": ["Mathematics Advanced"|"Science"|"English"|"French"|"Commerce"|"History"|"Religious Education"|"PDHPE"|"General", ...], "summary": string, "checklist_items": [ { "title": string, "due_date": "YYYY-MM-DD"|null, "priority": "low"|"med"|"high" } ], "has_assessment": boolean, "assessment_date": "YYYY-MM-DD"|null }
 - unknown: { "action": "unknown", "reason": string }
 
 Tags should be one of: School, Rade.XT, RuneHaven, LeadLens, Ambient Intelligence, General.
@@ -29,6 +30,7 @@ day_of_week: 1=Monday through 5=Friday.
 For log_project, project_match is text to match a project name — the projects are Rade.XT, RuneHaven, LeadLens AI, and Ambient Intelligence. Default kind to "shipped" if they describe finishing something, "issue" if something broke, otherwise "note".
 For open_studyboy, use it when they ask to make study material but haven't given source material in the command itself — they need to go to the Studyboy page to pick their material first.
 For update_project, this can rename a project or change its status — this IS a real database field, unlike the site's own name which is not stored anywhere and cannot be changed this way.
+Use process_notification when the student pastes or attaches something that reads like a school notification, newsletter excerpt, portal/app message, or announcement, rather than giving a direct instruction. subjects is one or more of the fixed list above (or "General" if it doesn't fit a subject) — include every subject it's actually relevant to, not just one. Pull out any real action items (permission notes, things to bring, due dates) as checklist_items. Only set has_assessment true when this clearly describes a graded test or assessment with an identifiable date; don't guess a date that isn't stated.
 Use feature_request whenever the command describes a UI, layout, or code change to this app itself rather than a data operation — e.g. "separate X from Y on the timetable page", "add a dark mode", "make the sidebar collapsible", "rename the whole site". This is not something the command bar can build live (that requires an actual development session with build verification, not a runtime database write), so instead of attempting it or just refusing, capture it as a short, clear one-line summary suitable for a project roadmap. Reserve "unknown" only for genuinely unclear or nonsensical input, not for valid feature ideas.
 Default priority to "med" if not implied. Default due_date to null if no date is mentioned.
 
