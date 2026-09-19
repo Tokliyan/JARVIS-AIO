@@ -17,7 +17,7 @@ const MODE_TONE = {
   study_plan: 'bg-[#EEF6E4] text-[#4F7A20]',
 };
 
-function History({ onOpen }, ref) {
+function History({ onOpen, subjectFilter }, ref) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
@@ -54,12 +54,13 @@ function History({ onOpen }, ref) {
     load();
   }
 
+  const bySubject = subjectFilter ? items.filter((i) => i.subject === subjectFilter) : items;
   const shown =
     filter === 'all'
-      ? items
+      ? bySubject
       : filter === 'starred'
-        ? items.filter((i) => i.starred)
-        : items.filter((i) => i.mode === filter);
+        ? bySubject.filter((i) => i.starred)
+        : bySubject.filter((i) => i.mode === filter);
 
   if (loading) return <p className="text-sm text-muted">Loading…</p>;
 
@@ -71,14 +72,18 @@ function History({ onOpen }, ref) {
     );
   }
 
-  const modes = [...new Set(items.map((i) => i.mode))];
-  const starredCount = items.filter((i) => i.starred).length;
+  if (bySubject.length === 0) {
+    return <p className="text-sm text-muted">Nothing saved for {subjectFilter} yet.</p>;
+  }
+
+  const modes = [...new Set(bySubject.map((i) => i.mode))];
+  const starredCount = bySubject.filter((i) => i.starred).length;
 
   return (
     <div>
       <div className="mb-3 flex flex-wrap gap-1">
         <Chip active={filter === 'all'} onClick={() => setFilter('all')}>
-          All ({items.length})
+          All ({bySubject.length})
         </Chip>
         {starredCount > 0 && (
           <Chip active={filter === 'starred'} onClick={() => setFilter('starred')}>

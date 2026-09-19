@@ -180,11 +180,11 @@ export default function SourceMaterial({ subject, setSubject, sourceText, setSou
         {sourceText.length.toLocaleString()} characters
       </div>
 
-      {docs.length > 0 && (
+      {docs.filter((d) => !subject || d.subject === subject).length > 0 && (
         <div className="mt-4 border-t border-border pt-3">
-          <div className="mb-2 text-xs text-muted">Saved material</div>
+          <div className="mb-2 text-xs text-muted">Saved material — {subject}</div>
           <div className="flex flex-wrap gap-2">
-            {docs.map((d) => (
+            {docs.filter((d) => !subject || d.subject === subject).map((d) => (
               <button
                 key={d.id}
                 onClick={() => loadDoc(d)}
