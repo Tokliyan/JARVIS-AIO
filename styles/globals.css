@@ -39,6 +39,15 @@ html.dark {
   color-scheme: dark;
 }
 
+/* Home-screen (standalone) safe areas. env() resolves to 0 in a normal browser
+   tab, so these are inert until the app is actually installed on a phone. */
+.safe-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
 .tnum {
   font-variant-numeric: tabular-nums;
   font-feature-settings: 'tnum' 1;

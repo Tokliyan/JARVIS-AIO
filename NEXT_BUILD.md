@@ -17,30 +17,25 @@ Process:
 
 ## Queued
 
-1. **PWA support** — manifest.json, apple-touch-icon and related icons, and
-   the meta tags needed so this can be added to an iPhone home screen and
-   opens full-screen instead of inside browser chrome.
+Nothing queued. (PWA support, the branded icon/favicon, loading skeletons
+and command bar → Studyboy generation were built and pushed on 21 Sep 2026.)
 
-2. **App icon / favicon matching JARVIS AIO branding** — replace the Next.js
-   default. Same palette as the rest of the site (accent green, warm
-   near-white background). Bundle with #1.
+## Built — waiting on you to run the SQL
 
-3. **Studyboy: track quiz and flashcard results over time** — new table
-   (e.g. aio_studyboy_attempts: subject, topic, correct boolean, mode,
-   created_at), written on every quiz mark and flashcard rating. Surface a
-   small "weak topics" widget on the Studyboy page from it.
+These two are code-complete and pushed. Each needs its SQL run by hand in
+Supabase → SQL Editor before it does anything; until then the app degrades
+quietly rather than erroring. Delete the line once you've run it.
 
-4. **Loading skeletons** — replace plain "Loading…" text on Room, Projects,
-   Timetable, and Studyboy history with a subtle skeleton shaped like the
-   real content.
+- **Studyboy: track quiz and flashcard results over time** →
+  `pending-sql/001_aio_studyboy_attempts.sql`. Every quiz mark and flashcard
+  rating writes an attempt; the "Weak topics" widget at the top of Studyboy's
+  Create tab reads them back. Widget stays hidden until the table exists.
 
-5. **Notifications log view** — a small section listing recently processed
-   command-bar notifications: what was captured, which subject(s), whether
-   a study plan got built. Currently invisible after the fact.
-
-6. **Command bar → Studyboy generation** — e.g. "quiz me on Chemistry"
-   should pull the most recently saved Chemistry material and generate a
-   quiz directly, not just redirect to an empty Studyboy page.
+- **Notifications log view** → `pending-sql/002_aio_notification_log.sql`.
+  Processed command-bar notifications get logged with what was captured,
+  which subjects, how many tasks, and whether a study plan was built. Shows
+  up under Studyboy → Notifications. Processing still works without it; it
+  just isn't logged.
 
 ## Not for this repo — tracked on the Ambient Intelligence Supabase roadmap
 

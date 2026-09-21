@@ -59,6 +59,14 @@ All tables live in the Rade.XT Supabase project, prefixed `aio_` to stay
 separate from that project's own tables (`radext_...`). Schema + RLS policies
 are in the AIO spec doc.
 
+### Pending SQL
+
+`/pending-sql/` holds migrations the nightly build routine wrote but can't run
+itself — it has no database credentials. Run each one by hand in Supabase →
+SQL Editor, then delete the file. Anything waiting on one of these degrades
+quietly in the app (the feature stays hidden or unlogged) rather than erroring,
+so there's no rush, but nothing new works until it's run.
+
 ## Deploying to Render
 
 1. Push this repo to GitHub.

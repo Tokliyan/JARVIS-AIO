@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
+import { Skeleton, SkeletonBlock } from '@/components/Skeleton';
 
 const DAYS = [
   { n: 1, short: 'Mon', long: 'Monday' },
@@ -154,11 +155,13 @@ export default function WeekGrid() {
   return (
     <div>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-        <p className="text-sm text-muted">
-          {loading
-            ? 'Loading…'
-            : `${visibleCount} period${visibleCount === 1 ? '' : 's'}${showFull ? ' total' : ' this week'}`}
-        </p>
+        {loading ? (
+          <Skeleton className="h-4 w-32" />
+        ) : (
+          <p className="text-sm text-muted">
+            {`${visibleCount} period${visibleCount === 1 ? '' : 's'}${showFull ? ' total' : ' this week'}`}
+          </p>
+        )}
 
         <div className="flex flex-wrap items-center gap-2">
           {hasRotation && !showFull && (
@@ -260,10 +263,26 @@ export default function WeekGrid() {
         </form>
       )}
 
+      {loading ? (
+        <SkeletonBlock label="Loading your timetable" className="grid grid-cols-1 gap-3 sm:grid-cols-5">
+          {DAYS.map((day, di) => (
+            <div key={day.n} className="rounded border border-border bg-surface p-3">
+              <div className="mb-3 flex items-baseline justify-between">
+                <Skeleton className="h-2.5 w-8" />
+                <Skeleton className="h-2.5 w-3" />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                {Array.from({ length: 3 - (di % 2) }).map((_, i) => (
+                  <Skeleton key={i} className="h-11 w-full" />
+                ))}
+              </div>
+            </div>
+          ))}
+        </SkeletonBlock>
+      ) : (
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-5">
         {DAYS.map((day, di) => {
           const isToday = day.n === todayNum;
-          const dayPeriods = periodsForDay(day.n);
 
           const { school, after } = periodsForDay(day.n);
           const total = school.length + after.length;
@@ -314,6 +333,7 @@ export default function WeekGrid() {
           );
         })}
       </div>
+      )}
     </div>
   );
 }

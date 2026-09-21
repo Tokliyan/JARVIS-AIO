@@ -11,7 +11,7 @@ const MODES = [
   { id: 'study_plan', label: 'Study plan' },
 ];
 
-export default function Generator({ subject, sourceText, onSaved, initialOutput }) {
+export default function Generator({ subject, sourceText, onSaved, onAttemptsRecorded, initialOutput }) {
   const [mode, setMode] = useState('past_paper');
   const [notes, setNotes] = useState('');
   const [assessmentDate, setAssessmentDate] = useState('');
@@ -167,9 +167,17 @@ export default function Generator({ subject, sourceText, onSaved, initialOutput 
       {output && (
         <div className="mt-4 border-t border-border pt-4">
           {output.mode === 'flashcards' ? (
-            <Flashcards cards={output.cards || []} />
+            <Flashcards
+              cards={output.cards || []}
+              subject={subject}
+              onRecorded={onAttemptsRecorded}
+            />
           ) : output.mode === 'quiz' ? (
-            <Quiz questions={output.questions || []} />
+            <Quiz
+              questions={output.questions || []}
+              subject={subject}
+              onRecorded={onAttemptsRecorded}
+            />
           ) : output.mode === 'study_plan' ? (
             <>
               <div className="mb-3 flex items-center justify-between">

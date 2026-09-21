@@ -10,6 +10,16 @@ function isoDaysFromNow(n) {
 }
 
 const TEXT_TYPES = ['text/plain', 'text/markdown', 'text/csv', 'application/json'];
+
+// Study material the command bar can build without leaving the page. study_plan
+// isn't here — it needs an assessment date, which is picked on Studyboy itself.
+const GENERATE_MODES = ['past_paper', 'study_guide', 'flashcards', 'quiz'];
+const MODE_LABEL = {
+  past_paper: 'Past paper',
+  study_guide: 'Study guide',
+  flashcards: 'Flashcards',
+  quiz: 'Quiz',
+};
 const MAX_TEXTAREA_HEIGHT = 200;
 
 function fileToBase64(file) {
@@ -346,6 +356,91 @@ export default function CommandBar() {
         break;
       }
 
+      case 'generate_study': {
+        const mode = GENERATE_MODES.includes(intent.mode) ? intent.mode : 'quiz';
+        const label = MODE_LABEL[mode];
+
+        // Most recently saved material for that subject. One doc is usually
+        // enough; fold in the next couple only if the latest is too thin for
+        // the generator's minimum.
+        const { data: docs } = await supabase
+          .from('aio_studyboy_docs')
+          .select('ocr_text, file_name')
+          .eq('subject', intent.subject)
+          .order('uploaded_at', { ascending: false })
+          .limit(3);
+
+        if (!docs || docs.length === 0) {
+          setResult({
+            kind: 'error',
+            message: `No saved ${intent.subject} material yet — add some on Studyboy first.`,
+          });
+          router.push('/studyboy');
+          break;
+        }
+
+        let sourceText = '';
+        for (const d of docs) {
+          if (sourceText.length >= 50) break;
+          sourceText += (sourceText ? '\n\n' : '') + (d.ocr_text || '');
+        }
+        sourceText = sourceText.slice(0, 20000);
+
+        if (sourceText.trim().length < 50) {
+          setResult({
+            kind: 'error',
+            message: `The saved ${intent.subject} material is too short to build from — add more on Studyboy.`,
+          });
+          router.push('/studyboy');
+          break;
+        }
+
+        setResult({ kind: 'ok', message: `Building a ${label.toLowerCase()} from your latest ${intent.subject} material…` });
+
+        const genRes = await fetch('/api/studyboy/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            mode,
+            subject: intent.subject,
+            sourceText,
+            notes: intent.notes || '',
+            difficulty: 'match',
+            strictness: 'strict',
+            today: new Date().toISOString().slice(0, 10),
+          }),
+        });
+        const generated = await genRes.json();
+        if (!genRes.ok) {
+          return setResult({
+            kind: 'error',
+            message: generated.error || "Couldn't build that.",
+          });
+        }
+
+        const stamp = new Date().toLocaleDateString('en-AU', { day: 'numeric', month: 'short' });
+        const { data: saved, error: saveErr } = await supabase
+          .from('aio_studyboy_outputs')
+          .insert({
+            subject: intent.subject,
+            mode,
+            title: `${intent.subject} — ${label}, ${stamp}`,
+            payload: generated,
+          })
+          .select('id')
+          .single();
+
+        if (saveErr) return setResult({ kind: 'error', message: saveErr.message });
+
+        setValue('');
+        setResult({
+          kind: 'ok',
+          message: `Built a ${intent.subject} ${label.toLowerCase()} from "${docs[0].file_name || 'your latest material'}".`,
+        });
+        router.push(`/studyboy?open=${saved.id}`);
+        break;
+      }
+
       case 'update_project': {
         const { data } = await supabase
           .from('aio_projects')
@@ -443,6 +538,7 @@ export default function CommandBar() {
 
         // If it's clearly a dated assessment, build a study plan from it too.
         let planNote = '';
+        let planStepCount = 0;
         if (intent.has_assessment && intent.assessment_date) {
           try {
             const planRes = await fetch('/api/studyboy/generate', {
@@ -472,12 +568,25 @@ export default function CommandBar() {
                 title: `${subjects[0]} — plan for ${intent.assessment_date}`,
                 payload: plan,
               });
+              planStepCount = plan.steps.length;
               planNote = ` Built a ${plan.steps.length}-step study plan too — check Studyboy's history.`;
             }
           } catch {
             // plan generation failing shouldn't block the save/checklist part
           }
         }
+
+        // Leave a trace of what was captured — otherwise this is invisible
+        // after the fact. Best-effort: the table arrives with pending-sql/002,
+        // and a missing log must never fail the processing itself.
+        await supabase.from('aio_notification_log').insert({
+          summary: intent.summary || null,
+          subjects,
+          captured_text: rawText.slice(0, 20000),
+          checklist_count: items.length,
+          plan_built: planStepCount > 0,
+          plan_steps: planStepCount,
+        });
 
         setResult({
           kind: 'ok',
@@ -526,7 +635,7 @@ export default function CommandBar() {
   const canSend = (value.trim() || files.length > 0) && !busy && !stillReading;
 
   return (
-    <div className="fixed inset-x-0 bottom-0 border-t border-border bg-surface/95 backdrop-blur">
+    <div className="safe-bottom fixed inset-x-0 bottom-0 border-t border-border bg-surface/95 backdrop-blur">
       <div className="mx-auto max-w-3xl px-4 py-3">
         {result && (
           <div className="mb-2 animate-row-in rounded border border-border bg-bg p-3 text-sm">

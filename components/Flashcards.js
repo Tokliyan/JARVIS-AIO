@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import { recordAttempts } from '@/lib/attempts';
 
-export default function Flashcards({ cards }) {
+export default function Flashcards({ cards, subject, onRecorded }) {
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [known, setKnown] = useState([]);
@@ -10,12 +11,17 @@ export default function Flashcards({ cards }) {
   const card = cards[index];
   const isLast = index === cards.length - 1;
 
-  function mark(gotIt) {
+  async function mark(gotIt) {
     setKnown((k) => [...k.filter((x) => x.i !== index), { i: index, gotIt }]);
     if (!isLast) {
       setIndex(index + 1);
       setFlipped(false);
     }
+    // Every rating is an attempt — that's what makes a weak topic visible.
+    const saved = await recordAttempts([
+      { subject, topic: card.topic, mode: 'flashcards', correct: gotIt },
+    ]);
+    if (saved) onRecorded?.();
   }
 
   const correct = known.filter((k) => k.gotIt).length;

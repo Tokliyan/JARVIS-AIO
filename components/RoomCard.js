@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { Sparkline } from '@/components/charts';
+import { Skeleton, SkeletonBlock } from '@/components/Skeleton';
 
 // Glenwood NSW 2768. Open-Meteo needs no API key and allows browser calls
 // directly, so this runs client-side with nothing to configure.
@@ -52,6 +53,28 @@ export default function RoomCard() {
 
   const latest = readings[readings.length - 1];
   const temps = readings.map((r) => r.temperature_c).filter((v) => v != null);
+
+  if (loadingReadings && !weather && !weatherFailed) {
+    return (
+      <SkeletonBlock label="Loading the room">
+        <div className="flex items-end justify-between">
+          <div>
+            <Skeleton className="h-7 w-14" />
+            <Skeleton className="mt-1.5 h-3 w-28" />
+          </div>
+          <Skeleton className="h-5 w-16" />
+        </div>
+        <div className="mt-3 flex flex-col gap-2 border-t border-border pt-3">
+          {['w-16', 'w-14', 'w-10'].map((w) => (
+            <div key={w} className="flex items-center gap-2">
+              <Skeleton className="h-1.5 w-1.5 shrink-0 rounded-full" />
+              <Skeleton className={`h-3 ${w}`} />
+            </div>
+          ))}
+        </div>
+      </SkeletonBlock>
+    );
+  }
 
   return (
     <div>

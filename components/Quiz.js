@@ -1,8 +1,23 @@
 import { useState } from 'react';
+import { recordAttempts } from '@/lib/attempts';
 
-export default function Quiz({ questions }) {
+export default function Quiz({ questions, subject, onRecorded }) {
   const [answers, setAnswers] = useState({});
   const [submitted, setSubmitted] = useState(false);
+
+  // One row per question, so weak topics build up across every quiz taken.
+  async function mark() {
+    setSubmitted(true);
+    const saved = await recordAttempts(
+      questions.map((q, i) => ({
+        subject,
+        topic: q.topic,
+        mode: 'quiz',
+        correct: answers[i] === q.correct_index,
+      })),
+    );
+    if (saved) onRecorded?.();
+  }
 
   if (questions.length === 0) return <p className="text-sm text-muted">No questions generated.</p>;
 
@@ -92,7 +107,7 @@ export default function Quiz({ questions }) {
           </button>
         ) : (
           <button
-            onClick={() => setSubmitted(true)}
+            onClick={mark}
             disabled={!allAnswered}
             className="rounded bg-accent px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
           >

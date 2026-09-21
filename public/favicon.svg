@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="JARVIS AIO">
+  <style>
+    .bg { fill: #FBFBFA }
+    .mark { fill: #2F6F4E }
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: #131312 }
+      .mark { fill: #4FA379 }
+    }
+  </style>
+  <rect class="bg" width="64" height="64" />
+  <path class="mark" fill-rule="evenodd"
+        d="M32 5a27 27 0 1 0 0 54 27 27 0 0 0 0-54zm0 7.7a19.3 19.3 0 1 1 0 38.6 19.3 19.3 0 0 1 0-38.6z" />
+  <circle class="mark" cx="32" cy="32" r="8.6" />
+</svg>
