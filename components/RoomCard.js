@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { Sparkline } from '@/components/charts';
-import { Skeleton, SkeletonBlock } from '@/components/Skeleton';
 
-// Glenwood NSW 2768. Open-Meteo needs no API key and allows browser calls
-// directly, so this runs client-side with nothing to configure.
+// Glenwood NSW 2768 — a stand-in only until the Satellite reports for real.
 const GLENWOOD = { lat: -33.734, lon: 150.947 };
+const READING_FRESH_MS = 2 * 60 * 60 * 1000; // 2 hours
 
 const WEATHER_LABEL = {
   0: 'Clear', 1: 'Mostly clear', 2: 'Partly cloudy', 3: 'Overcast',
@@ -52,41 +51,29 @@ export default function RoomCard() {
   }
 
   const latest = readings[readings.length - 1];
+  const latestIsFresh = latest && Date.now() - new Date(latest.recorded_at).getTime() < READING_FRESH_MS;
   const temps = readings.map((r) => r.temperature_c).filter((v) => v != null);
-
-  if (loadingReadings && !weather && !weatherFailed) {
-    return (
-      <SkeletonBlock label="Loading the room">
-        <div className="flex items-end justify-between">
-          <div>
-            <Skeleton className="h-7 w-14" />
-            <Skeleton className="mt-1.5 h-3 w-28" />
-          </div>
-          <Skeleton className="h-5 w-16" />
-        </div>
-        <div className="mt-3 flex flex-col gap-2 border-t border-border pt-3">
-          {['w-16', 'w-14', 'w-10'].map((w) => (
-            <div key={w} className="flex items-center gap-2">
-              <Skeleton className="h-1.5 w-1.5 shrink-0 rounded-full" />
-              <Skeleton className={`h-3 ${w}`} />
-            </div>
-          ))}
-        </div>
-      </SkeletonBlock>
-    );
-  }
 
   return (
     <div>
       <div className="flex items-end justify-between">
         <div>
-          <span className="tnum text-2xl font-medium text-ink">
-            {weather ? `${Math.round(weather.temperature_2m)}°` : weatherFailed ? '—' : '···'}
-          </span>
-          <div className="text-xs text-faint">
-            {weather ? WEATHER_LABEL[weather.weather_code] || '' : 'Glenwood NSW'}
-            {weather && ' · Glenwood NSW'}
-          </div>
+          {latestIsFresh && latest.temperature_c != null ? (
+            <>
+              <span className="tnum text-2xl font-medium text-ink">{latest.temperature_c}°</span>
+              <div className="text-xs text-faint">Desk — Satellite live</div>
+            </>
+          ) : (
+            <>
+              <span className="tnum text-2xl font-medium text-ink">
+                {weather ? `${Math.round(weather.temperature_2m)}°` : weatherFailed ? '—' : '···'}
+              </span>
+              <div className="text-xs text-faint">
+                {weather ? WEATHER_LABEL[weather.weather_code] || '' : 'Glenwood NSW'}
+                {weather && ' · Glenwood (outside, stand-in)'}
+              </div>
+            </>
+          )}
         </div>
         {temps.length > 1 && <Sparkline values={temps} width={64} height={20} />}
       </div>
