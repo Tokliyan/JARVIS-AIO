@@ -15,12 +15,37 @@ Process:
 - If something's ambiguous, leave a comment explaining what's unclear
   rather than guessing.
 
+## Routine can’t read the Supabase roadmap (found 22 Sep, still true 23 Sep 2026)
+
+The routine only has the anon key (`NEXT_PUBLIC_SUPABASE_ANON_KEY`). The REST
+API *is* reachable (HTTP 200), but RLS hides every row from an unauthenticated
+key: `aio_timetable`, `aio_checklist` and `aio_projects` all come back `[]`
+with `content-range: */0`. So the routine cannot see the roadmap at all, and an
+empty response is indistinguishable from "nothing planned" — which means a
+future run could go quiet forever instead of reporting that it's blind.
+
+This also breaks the command bar loop: a `feature_request` tells you "Saved to
+Ambient Intelligence's roadmap — needs an actual build session", but the build
+session can't read it. Anything queued that way is invisible to this routine.
+
+Until that's resolved, **this file is the only queue the routine can see.**
+Your call which way to fix it: give the routine a service-role key in its env,
+add an RLS policy letting the anon key read `aio_projects.roadmap`, or just
+keep queueing work in this file.
+
+This note was first written on 22 Sep but landed on a side branch, so it never
+reached `main` and you never saw it. Re-verified and landed here on 23 Sep.
+
 ## Queued
 
 Nothing queued. (PWA support, the branded icon/favicon, loading skeletons
 and command bar → Studyboy generation were built and pushed on 21 Sep 2026.)
 
 ## Built — waiting on you to run the SQL
+
+Both still unrun as of 23 Sep 2026 — checked against the API, and
+`aio_studyboy_attempts` and `aio_notification_log` both 404 as missing from
+the schema cache, so both features are still dormant.
 
 These two are code-complete and pushed. Each needs its SQL run by hand in
 Supabase → SQL Editor before it does anything; until then the app degrades
