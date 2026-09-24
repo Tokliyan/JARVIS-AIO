@@ -55,10 +55,12 @@ export default async function handler(req, res) {
     const dayNum = now.getDay();
     const todayISO = now.toISOString().slice(0, 10);
 
-    const [{ data: settingsRow }, { data: periods }, { data: tasks }] = await Promise.all([
+    const [{ data: settingsRow }, { data: periods }, { data: tasks }, { data: readings }, { data: projects }] = await Promise.all([
       db.from('aio_settings').select('value').eq('user_id', OWNER_ID).eq('key', 'current_week').maybeSingle(),
       db.from('aio_timetable').select('*').eq('user_id', OWNER_ID).eq('day_of_week', dayNum).order('start_time'),
       db.from('aio_checklist').select('*').eq('user_id', OWNER_ID).eq('due_date', todayISO),
+      db.from('aio_room_readings').select('*').eq('user_id', OWNER_ID).order('recorded_at', { ascending: false }).limit(1),
+      db.from('aio_projects').select('name, status_label, status_color').eq('user_id', OWNER_ID).in('status_color', ['warn', 'bad']),
     ]);
     const currentWeek = settingsRow?.value || 'A';
     const visiblePeriods = (periods || []).filter((p) => !p.week_type || p.week_type === currentWeek);
@@ -124,6 +126,42 @@ export default async function handler(req, res) {
         }
         y += bodyFont + lineGap * 1.3;
         if (y > height - 60) break;
+      }
+    }
+
+    // Room
+    if (y < height - 140) {
+      y += lineGap;
+      hr();
+      ctx.font = `bold ${headFont}px sans-serif`;
+      ctx.fillText('Room', pad, y + headFont);
+      y += headFont + lineGap;
+      ctx.font = `${bodyFont}px sans-serif`;
+      const reading = readings?.[0];
+      const roomLine = reading
+        ? `${reading.temperature_c != null ? reading.temperature_c + '\u00b0' : '\u2014'}  \u00b7  Satellite ${reading.satellite_online ? 'online' : 'offline'}  \u00b7  Camera ${reading.camera_online ? 'online' : 'offline'}`
+        : 'No sensor readings yet';
+      ctx.fillText(roomLine, pad, y + bodyFont);
+      y += bodyFont + lineGap * 1.3;
+    }
+
+    // Needs attention
+    if (y < height - 100) {
+      y += lineGap;
+      hr();
+      ctx.font = `bold ${headFont}px sans-serif`;
+      ctx.fillText('Needs attention', pad, y + headFont);
+      y += headFont + lineGap;
+      ctx.font = `${bodyFont}px sans-serif`;
+      if (!projects || projects.length === 0) {
+        ctx.fillText('All projects running clean.', pad, y + bodyFont);
+        y += bodyFont + lineGap;
+      } else {
+        for (const p of projects) {
+          ctx.fillText(`\u26a0 ${p.name} \u2014 ${p.status_label || ''}`, pad, y + bodyFont);
+          y += bodyFont + lineGap * 1.3;
+          if (y > height - 40) break;
+        }
       }
     }
 
