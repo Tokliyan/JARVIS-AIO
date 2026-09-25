@@ -15,33 +15,22 @@ Process:
 - If something's ambiguous, leave a comment explaining what's unclear
   rather than guessing.
 
-## Nothing this routine pushes is reaching `main` (25 Sep 2026)
+## How this routine's pushes reach `main` (checked 25 Sep 2026)
 
-The routine's instructions say "commit and push to `main`", but this session is
-pinned by its harness to the branch `claude/kind-archimedes-enaumc` and is not
-allowed to push anywhere else. So every run has been pushing there instead.
+The routine's instructions say "push to `main`", but each session is pinned by
+its harness to a generated branch (this run: `claude/kind-archimedes-enaumc`)
+and can't push anywhere else. Checked on 25 Sep: that has not cost you
+anything — every earlier run's work is on `main`, including the PWA work,
+the Kindle/e-ink dashboard, the Satellite ingestion endpoint and
+`/api/display`. The branches have been getting merged.
 
-As of 25 Sep 2026 that branch is **6 commits ahead of `main`**, and none of
-that work is on `main`:
+The one thing to know is that a run's commit is **not** on `main` the moment
+the run ends — it sits on that run's branch until merged. So if you check
+`main` right after a nightly run and see nothing, look for an unmerged
+`claude/*` branch before assuming the routine did nothing.
 
-- `0b4615a` PWA + branded icons, loading skeletons, attempt tracking,
-  notification log, command bar → Studyboy
-- `8b22bd4` e-ink dashboard endpoint, Satellite sensor ingestion, RoomCard
-  prefers real readings
-- `d0290dc` Kindle PNG endpoint + browser preview page
-- `3f463e3` `/api/display` JSON wrapper for trmnl-koreader
-- `7125d42` the roadmap-blind note above
-- `a8259b0` Kindle dashboard: Room and "Needs attention" sections
-
-This is the same failure mode the note below describes for 22 Sep, except now
-it's six commits of real features rather than one note. If you have been
-looking at `main` and wondering why the nightly routine seems to have built
-nothing since 21 Sep — this is why. The work exists; it's just parked.
-
-To land it: `git merge claude/kind-archimedes-enaumc` on `main`, or open a PR
-from that branch. To stop it recurring, either point the routine's environment
-at `main` or change the prompt to say push to
-`claude/kind-archimedes-enaumc` so the two agree.
+(The 22 Sep note below says its own note never reached `main`. That has since
+been resolved — `7125d42` is on `main` now.)
 
 ## Routine can’t read the Supabase roadmap (found 22 Sep, still true 25 Sep 2026)
 
@@ -78,8 +67,7 @@ Both still unrun as of 25 Sep 2026 — re-checked against the API, and
 from the schema cache, so both features are still dormant. (`aio_room_readings`
 does exist, so the Satellite/e-ink work needs no SQL.)
 
-These two are code-complete and pushed (to the branch named at the top of
-this file, not `main`). Each needs its SQL run by hand in
+These two are code-complete and on `main`. Each needs its SQL run by hand in
 Supabase → SQL Editor before it does anything; until then the app degrades
 quietly rather than erroring. Delete the line once you've run it.
 
