@@ -15,33 +15,36 @@ Process:
 - If something's ambiguous, leave a comment explaining what's unclear
   rather than guessing.
 
-## ⚠️ Nothing has reached `main` since 21 Sep 2026 (found 26 Sep)
+## ⚠️ Recent runs' commits are not being merged into `main` (26 Sep)
 
-`main` is still at `86896ef`. This branch — `claude/kind-archimedes-cszdan` —
-is **6 commits ahead of it**, and none of that work has ever been merged:
+`main` is at `a8259b0` and has **all** the feature work — PWA, Kindle/e-ink
+dashboard, Satellite ingestion, `/api/display`. Nothing of that is stranded.
 
-- `0b4615a` PWA + branded icons, loading skeletons, attempt tracking,
-  notification log, command bar → Studyboy
-- `8b22bd4` e-ink dashboard endpoint for Kindle, Satellite sensor ingestion,
-  RoomCard prefers real readings over the weather stand-in
-- `d0290dc` Kindle PNG endpoint + browser preview page
-- `3f463e3` `/api/display` — the JSON wrapper trmnl-koreader expects
-- `7125d42` the Supabase-roadmap note below
-- `a8259b0` Kindle dashboard Room + Needs attention sections
+What has stopped landing is the last few runs' output. Each run is pinned to
+its own `claude/*` branch and cannot push to `main`, so its commit waits there
+to be merged. That was happening up to 24 Sep; since then it hasn't. Unmerged
+right now:
 
-So the earlier claims in this file that things were "built and pushed" are
-misleading: they were pushed **to this branch**, not to `main`. Nothing is
-deployed, and the 22 Sep "landed on a side branch so you never saw it"
-problem is still happening — including to the note about it.
+- `claude/kind-archimedes-rogmy5` → `55c6fe6` roadmap-unreadable note
+- `claude/kind-archimedes-nt6d8v` → `d59c207` (repeats the stale-ref mistake below)
+- `claude/kind-archimedes-enaumc` → `6bc69a8` + `2bb95fc` (the correction to it)
+- `claude/kind-archimedes-cszdan` → this run, incl. `pending-sql/003`
 
-The routine's own environment is what's forcing this: it is pinned to the
-branch `claude/kind-archimedes-cszdan` and is told never to push anywhere
-else, which directly contradicts "push directly to `main`" above. **This
-needs a human decision** — either merge this branch into `main` and keep
-merging, or repoint the routine's designated branch at `main`. The routine
-should not pick for you.
+Because `2bb95fc` never merged, `main`'s copy of this file still carries the
+already-retracted "nothing has reached main" claim. That is how the mistake
+keeps resurfacing.
 
-**Next action: merge `claude/kind-archimedes-cszdan` into `main`.**
+**Next action: merge `claude/kind-archimedes-cszdan` into `main`** (it has the
+only new code — migration 003). The other three are notes only and can be
+merged or deleted; they duplicate what this file now says.
+
+### Note to future runs: fetch before you compare
+
+A fresh container's `origin/main` ref can be stale, so `git log origin/main`
+**before** a fetch shows an older `main` and makes it look like work is
+stranded. Two runs have now filed that false alarm (`6bc69a8`, `d59c207`) and
+this run started to make it a third. Always `git fetch origin main` first, then
+compare.
 
 ## Routine still can't read the Supabase roadmap (re-verified 26 Sep 2026)
 
