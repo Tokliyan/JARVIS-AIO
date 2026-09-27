@@ -2,12 +2,20 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { ExternalLink, Plus, X } from 'lucide-react';
 
+// The table is created by pending-sql/003_aio_study_resources.sql. Until that's
+// been run by hand in Supabase it doesn't exist, so the whole panel hides
+// itself: otherwise a link could be typed in, saved into nothing, and vanish on
+// the next reload with nothing said.
+const TABLE = 'aio_study_resources';
+
 export default function StudyResources({ subject }) {
   const [resources, setResources] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [available, setAvailable] = useState(true);
   const [adding, setAdding] = useState(false);
   const [label, setLabel] = useState('');
   const [url, setUrl] = useState('');
+  const [saveError, setSaveError] = useState('');
 
   useEffect(() => {
     load();
@@ -16,19 +24,27 @@ export default function StudyResources({ subject }) {
 
   async function load() {
     setLoading(true);
-    const { data } = await supabase
-      .from('aio_study_resources')
+    const { data, error } = await supabase
+      .from(TABLE)
       .select('*')
       .eq('subject', subject)
       .order('created_at', { ascending: true });
-    setResources(data || []);
+    setAvailable(!error);
+    setResources(error ? [] : data || []);
     setLoading(false);
   }
 
   async function add(e) {
     e.preventDefault();
     if (!label.trim() || !url.trim()) return;
-    await supabase.from('aio_study_resources').insert({ subject, label: label.trim(), url: url.trim() });
+    const { error } = await supabase
+      .from(TABLE)
+      .insert({ subject, label: label.trim(), url: url.trim() });
+    if (error) {
+      setSaveError("Couldn't save that link — it hasn't been kept.");
+      return;
+    }
+    setSaveError('');
     setLabel('');
     setUrl('');
     setAdding(false);
@@ -36,11 +52,16 @@ export default function StudyResources({ subject }) {
   }
 
   async function remove(id) {
-    await supabase.from('aio_study_resources').delete().eq('id', id);
+    const { error } = await supabase.from(TABLE).delete().eq('id', id);
+    if (error) {
+      setSaveError("Couldn't remove that link.");
+      return;
+    }
+    setSaveError('');
     load();
   }
 
-  if (loading) return null;
+  if (loading || !available) return null;
 
   return (
     <div className="rounded border border-border bg-surface p-4">
@@ -106,6 +127,8 @@ export default function StudyResources({ subject }) {
           </button>
         </form>
       )}
+
+      {saveError && <p className="mt-2 text-xs text-bad">{saveError}</p>}
     </div>
   );
 }

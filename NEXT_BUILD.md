@@ -15,7 +15,7 @@ Process:
 - If something's ambiguous, leave a comment explaining what's unclear
   rather than guessing.
 
-## Routine can’t read the Supabase roadmap (found 22 Sep, still true 23 Sep 2026)
+## Routine can’t read the Supabase roadmap (found 22 Sep, still true 27 Sep 2026)
 
 The routine only has the anon key (`NEXT_PUBLIC_SUPABASE_ANON_KEY`). The REST
 API *is* reachable (HTTP 200), but RLS hides every row from an unauthenticated
@@ -34,7 +34,11 @@ add an RLS policy letting the anon key read `aio_projects.roadmap`, or just
 keep queueing work in this file.
 
 This note was first written on 22 Sep but landed on a side branch, so it never
-reached `main` and you never saw it. Re-verified and landed here on 23 Sep.
+reached `main` and you never saw it. Re-verified and landed here on 23 Sep, and
+re-checked again on 27 Sep: `aio_projects`, `aio_checklist` and `aio_timetable`
+all still return `[]` with `content-range: */0`. Four runs in a row now, so any
+feature request you've dropped into the command bar since 21 Sep is sitting in
+the roadmap unseen and unbuilt.
 
 ## Queued
 
@@ -43,11 +47,11 @@ and command bar → Studyboy generation were built and pushed on 21 Sep 2026.)
 
 ## Built — waiting on you to run the SQL
 
-Both still unrun as of 23 Sep 2026 — checked against the API, and
-`aio_studyboy_attempts` and `aio_notification_log` both 404 as missing from
-the schema cache, so both features are still dormant.
+All three still unrun as of 27 Sep 2026 — checked against the API;
+`aio_studyboy_attempts`, `aio_notification_log` and `aio_study_resources` all
+404 as missing from the schema cache, so all three features are dormant.
 
-These two are code-complete and pushed. Each needs its SQL run by hand in
+These are code-complete and pushed. Each needs its SQL run by hand in
 Supabase → SQL Editor before it does anything; until then the app degrades
 quietly rather than erroring. Delete the line once you've run it.
 
@@ -61,6 +65,16 @@ quietly rather than erroring. Delete the line once you've run it.
   which subjects, how many tasks, and whether a study plan was built. Shows
   up under Studyboy → Notifications. Processing still works without it; it
   just isn't logged.
+
+- **Study resources per subject** → `pending-sql/003_aio_study_resources.sql`.
+  This one is a catch-up rather than a new feature, and it was losing data:
+  the "Resources — <subject>" panel shipped on 21 Sep without ever having a
+  table, so every link typed into it failed to save, the panel reloaded empty,
+  and nothing said why. Found on the 27 Sep run by checking every table the
+  code touches against the API. The panel now hides itself until the table
+  exists, and surfaces a save error instead of swallowing one, so nothing can
+  disappear like that again — but any links you added before today are gone
+  and will need re-adding once the SQL is run.
 
 ## Not for this repo — tracked on the Ambient Intelligence Supabase roadmap
 
