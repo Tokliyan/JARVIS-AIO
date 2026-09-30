@@ -15,7 +15,7 @@ Process:
 - If something's ambiguous, leave a comment explaining what's unclear
   rather than guessing.
 
-## Routine can’t read the Supabase roadmap (found 22 Sep, still true 29 Sep 2026)
+## Routine can’t read the Supabase roadmap (found 22 Sep, still true 30 Sep 2026)
 
 The routine only has the anon key (`NEXT_PUBLIC_SUPABASE_ANON_KEY`). The REST
 API *is* reachable (HTTP 200), but RLS hides every row from an unauthenticated
@@ -35,8 +35,8 @@ keep queueing work in this file.
 
 This note was first written on 22 Sep but landed on a side branch, so it never
 reached `main` and you never saw it. Re-verified and landed here on 23 Sep, and
-re-checked on 27, 28 and 29 Sep: `aio_projects`, `aio_checklist` and
-`aio_timetable` all still return `[]` with `content-range: */0`. Six runs in a
+re-checked on 27, 28, 29 and 30 Sep: `aio_projects`, `aio_checklist` and
+`aio_timetable` all still return `[]` with `content-range: */0`. Seven runs in a
 row now, so any feature request you've dropped into the command bar since 21 Sep
 is sitting in the roadmap unseen and unbuilt.
 
@@ -53,6 +53,23 @@ pending migration, because which trade-off to take is your call, not mine.
 Until one of those happens, each run does what this one did: probe, find `[]`,
 find nothing queued here, and stop.
 
+## The routine can't push to `main` any more (found 30 Sep 2026)
+
+This file and the process notes above both say "push directly to `main`", and
+runs up to 28 Sep did. But the routine is now pinned to a development branch
+(`claude/kind-archimedes-wxng0t`) and told not to push anywhere else without
+your say-so, so the 29 Sep check-in is sitting unmerged on that branch — and so
+is this one.
+
+That's the same failure the 22 Sep note hit: written, committed, never seen,
+because it never reached `main`. It matters because the two things this routine
+can still do — record what it found, and land built code — now both stop at a
+branch you have to go looking for.
+
+Either merge `claude/kind-archimedes-wxng0t` into `main` after each run, or let
+the routine push to `main` again. I haven't overridden the branch restriction
+myself; that's yours to set.
+
 ## Queued
 
 Nothing queued. (PWA support, the branded icon/favicon, loading skeletons
@@ -60,10 +77,10 @@ and command bar → Studyboy generation were built and pushed on 21 Sep 2026.)
 
 ## Built — waiting on you to run the SQL
 
-All three still unrun as of 29 Sep 2026 — checked against the API;
+All three still unrun as of 30 Sep 2026 — checked against the API;
 `aio_studyboy_attempts`, `aio_notification_log` and `aio_study_resources` all
 404 as missing from the schema cache (`PGRST205`), so all three features are
-dormant. Nine days for the oldest. Every other table the code touches
+dormant. Ten days for the oldest. Every other table the code touches
 (`aio_checklist`, `aio_timetable`, `aio_projects`, `aio_project_updates`, `aio_settings`,
 `aio_routines`, `aio_routine_defs`, `aio_room_readings`, `aio_studyboy_docs`,
 `aio_studyboy_outputs`) exists and answers 200, so these three are the only
