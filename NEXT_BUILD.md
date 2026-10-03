@@ -35,10 +35,17 @@ keep queueing work in this file.
 
 This note was first written on 22 Sep but landed on a side branch, so it never
 reached `main` and you never saw it. Re-verified and landed here on 23 Sep, and
-re-checked on 27, 28, 29 Sep and 1 Oct: `aio_projects`, `aio_checklist` and
-`aio_timetable` all still return `[]` with an empty `content-range`. Seven runs
-in a row now, so any feature request you've dropped into the command bar since
-21 Sep is sitting in the roadmap unseen and unbuilt.
+re-checked on 27, 28, 29 Sep, 1 Oct and 3 Oct: `aio_projects`, `aio_checklist`
+and `aio_timetable` all still return `[]` with an empty `content-range`. Eight
+runs in a row now, so any feature request you've dropped into the command bar
+since 21 Sep is sitting in the roadmap unseen and unbuilt.
+
+Worth knowing: the 1 Oct nightly note did the same thing the 22 Sep one did —
+it was committed to a side branch (`claude/kind-archimedes-syg0q7`) and never
+reached `main`, so you never saw it. This run is pinned to that same branch by
+its environment, so this note is on the side branch too. If you're reading this
+on `main`, someone merged it; if you're only ever reading `main`, that's the
+second channel this routine has lost and the reason these checks look silent.
 
 The roadmap is the `roadmap` JSONB column on `aio_projects`, so anon-key
 blindness on that one table is the whole problem.
@@ -60,10 +67,10 @@ and command bar → Studyboy generation were built and pushed on 21 Sep 2026.)
 
 ## Built — waiting on you to run the SQL
 
-All three still unrun as of 1 Oct 2026 — checked against the API;
+All three still unrun as of 3 Oct 2026 — checked against the API;
 `aio_studyboy_attempts`, `aio_notification_log` and `aio_study_resources` all
 404 as missing from the schema cache (`PGRST205`), so all three features are
-dormant. Eleven days for the oldest. Every other table the code touches
+dormant. Thirteen days for the oldest. Every other table the code touches
 (`aio_checklist`, `aio_timetable`, `aio_projects`, `aio_project_updates`, `aio_settings`,
 `aio_routines`, `aio_routine_defs`, `aio_room_readings`, `aio_studyboy_docs`,
 `aio_studyboy_outputs`) exists and answers 200, so these three are the only
