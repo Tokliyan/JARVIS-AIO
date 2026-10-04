@@ -15,7 +15,7 @@ Process:
 - If something's ambiguous, leave a comment explaining what's unclear
   rather than guessing.
 
-## Routine can’t read the Supabase roadmap (found 22 Sep, still true 1 Oct 2026)
+## Routine can’t read the Supabase roadmap (found 22 Sep, still true 4 Oct 2026)
 
 The routine only has the anon key (`NEXT_PUBLIC_SUPABASE_ANON_KEY`). The REST
 API *is* reachable (HTTP 200), but RLS hides every row from an unauthenticated
@@ -35,10 +35,12 @@ keep queueing work in this file.
 
 This note was first written on 22 Sep but landed on a side branch, so it never
 reached `main` and you never saw it. Re-verified and landed here on 23 Sep, and
-re-checked on 27, 28, 29 Sep and 1 Oct: `aio_projects`, `aio_checklist` and
-`aio_timetable` all still return `[]` with an empty `content-range`. Seven runs
-in a row now, so any feature request you've dropped into the command bar since
-21 Sep is sitting in the roadmap unseen and unbuilt.
+re-checked on 27, 28, 29 Sep, 1 Oct and 4 Oct: `aio_projects`, `aio_checklist`
+and `aio_timetable` all still return `[]` with an empty `content-range`. Eight
+runs in a row now, so any feature request you've dropped into the command bar
+since 21 Sep — two weeks — is sitting in the roadmap unseen and unbuilt. The
+environment still carries only the publishable (`sb_publishable…`) key; no
+service-role key has appeared.
 
 The roadmap is the `roadmap` JSONB column on `aio_projects`, so anon-key
 blindness on that one table is the whole problem.
@@ -53,6 +55,24 @@ pending migration, because which trade-off to take is your call, not mine.
 Until one of those happens, each run does what this one did: probe, find `[]`,
 find nothing queued here, and stop.
 
+## Routine's commits aren't reaching `main` either (found 4 Oct 2026)
+
+Worth knowing before you read anything above as "the routine went quiet": this
+session can't push to `main`. It's pinned to a `claude/…` branch by its own
+harness rules, which override the "Push directly to `main`" line in this file's
+process notes. The 1 Oct nightly-check commit (`745ac2c`) is proof — it exists
+only on that side branch and never landed on `main`, and the remote side branch
+from that run is already gone.
+
+This is the *same* failure described above for the 22 Sep note ("landed on a
+side branch, so it never reached `main` and you never saw it"), so it isn't a
+one-off. Everything this routine writes — including real feature work, if
+anything were ever queued — reaches you only if you merge that branch.
+
+Fix is yours to pick: let the routine push to `main` directly, or plan to merge
+its branch each time. I haven't changed the process notes above to say
+"push to a branch", because which of those you want is your call.
+
 ## Queued
 
 Nothing queued. (PWA support, the branded icon/favicon, loading skeletons
@@ -60,10 +80,10 @@ and command bar → Studyboy generation were built and pushed on 21 Sep 2026.)
 
 ## Built — waiting on you to run the SQL
 
-All three still unrun as of 1 Oct 2026 — checked against the API;
+All three still unrun as of 4 Oct 2026 — re-checked against the API today;
 `aio_studyboy_attempts`, `aio_notification_log` and `aio_study_resources` all
 404 as missing from the schema cache (`PGRST205`), so all three features are
-dormant. Eleven days for the oldest. Every other table the code touches
+dormant. Fourteen days for the oldest. Every other table the code touches
 (`aio_checklist`, `aio_timetable`, `aio_projects`, `aio_project_updates`, `aio_settings`,
 `aio_routines`, `aio_routine_defs`, `aio_room_readings`, `aio_studyboy_docs`,
 `aio_studyboy_outputs`) exists and answers 200, so these three are the only
