@@ -15,7 +15,7 @@ Process:
 - If something's ambiguous, leave a comment explaining what's unclear
   rather than guessing.
 
-## Routine can’t read the Supabase roadmap (found 22 Sep, still true 1 Oct 2026)
+## Routine can’t read the Supabase roadmap (found 22 Sep, still true 5 Oct 2026)
 
 The routine only has the anon key (`NEXT_PUBLIC_SUPABASE_ANON_KEY`). The REST
 API *is* reachable (HTTP 200), but RLS hides every row from an unauthenticated
@@ -35,10 +35,10 @@ keep queueing work in this file.
 
 This note was first written on 22 Sep but landed on a side branch, so it never
 reached `main` and you never saw it. Re-verified and landed here on 23 Sep, and
-re-checked on 27, 28, 29 Sep and 1 Oct: `aio_projects`, `aio_checklist` and
-`aio_timetable` all still return `[]` with an empty `content-range`. Seven runs
-in a row now, so any feature request you've dropped into the command bar since
-21 Sep is sitting in the roadmap unseen and unbuilt.
+re-checked on 27, 28, 29 Sep, 1 Oct and 5 Oct: `aio_projects`, `aio_checklist`
+and `aio_timetable` all still return `[]` with an empty `content-range`. Eight
+runs in a row now, so any feature request you've dropped into the command bar
+since 21 Sep is sitting in the roadmap unseen and unbuilt — two weeks of them.
 
 The roadmap is the `roadmap` JSONB column on `aio_projects`, so anon-key
 blindness on that one table is the whole problem.
@@ -53,6 +53,29 @@ pending migration, because which trade-off to take is your call, not mine.
 Until one of those happens, each run does what this one did: probe, find `[]`,
 find nothing queued here, and stop.
 
+## These nightly notes aren’t reaching `main` either (found 5 Oct 2026)
+
+Second delivery problem, and it has the same shape as the 22 Sep one above.
+
+The routine is pinned to the branch `claude/kind-archimedes-n1vov8`, but
+nothing merges it: `origin/main` is still at the 29 Sep commit, the 1 Oct
+nightly note sits on the branch alone, and the repo has **no pull requests at
+all — open, closed or merged**. So the notes land somewhere you don't read,
+which is exactly how the 22 Sep note went missing for a day.
+
+That means the warning above has been shouting into a side branch. If you are
+reading this on `main`, something changed; if you're reading it on the branch,
+that's the bug.
+
+Two ways out, your call:
+- merge `claude/kind-archimedes-n1vov8` into `main` (and keep merging it), or
+- re-point the routine at `main` — its standing instruction already says
+  "push to main", but the per-session branch directive overrides that, so the
+  directive is what needs changing, not the prompt.
+
+The routine won't open a PR on its own, because it's told not to without you
+asking.
+
 ## Queued
 
 Nothing queued. (PWA support, the branded icon/favicon, loading skeletons
@@ -60,10 +83,10 @@ and command bar → Studyboy generation were built and pushed on 21 Sep 2026.)
 
 ## Built — waiting on you to run the SQL
 
-All three still unrun as of 1 Oct 2026 — checked against the API;
+All three still unrun as of 5 Oct 2026 — checked against the API;
 `aio_studyboy_attempts`, `aio_notification_log` and `aio_study_resources` all
 404 as missing from the schema cache (`PGRST205`), so all three features are
-dormant. Eleven days for the oldest. Every other table the code touches
+dormant. Fifteen days for the oldest. Every other table the code touches
 (`aio_checklist`, `aio_timetable`, `aio_projects`, `aio_project_updates`, `aio_settings`,
 `aio_routines`, `aio_routine_defs`, `aio_room_readings`, `aio_studyboy_docs`,
 `aio_studyboy_outputs`) exists and answers 200, so these three are the only
