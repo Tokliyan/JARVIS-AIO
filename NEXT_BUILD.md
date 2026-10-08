@@ -15,7 +15,7 @@ Process:
 - If something's ambiguous, leave a comment explaining what's unclear
   rather than guessing.
 
-## Routine can’t read the Supabase roadmap (found 22 Sep, still true 7 Oct 2026)
+## Routine can’t read the Supabase roadmap (found 22 Sep, still true 8 Oct 2026)
 
 The routine only has the anon key (`NEXT_PUBLIC_SUPABASE_ANON_KEY`). The REST
 API *is* reachable (HTTP 200), but RLS hides every row from an unauthenticated
@@ -35,13 +35,23 @@ keep queueing work in this file.
 
 This note was first written on 22 Sep but landed on a side branch, so it never
 reached `main` and you never saw it. Re-verified and landed here on 23 Sep, and
-re-checked on 27, 28, 29 Sep, 1, 6 and 7 Oct: `aio_projects`, `aio_checklist`
-and `aio_timetable` all still return `[]` with an empty `content-range`. Nine
-runs in a row now, spanning sixteen days, so any feature request you've dropped
-into the command bar since 21 Sep is sitting in the roadmap unseen and unbuilt.
+re-checked on 27, 28, 29 Sep, 1, 6, 7 and 8 Oct: `aio_projects`, `aio_checklist`
+and `aio_timetable` all still return `[]` with an empty `content-range`. Ten
+runs in a row now, spanning seventeen days, so any feature request you've
+dropped into the command bar since 21 Sep is sitting in the roadmap unseen and
+unbuilt.
 
 The roadmap is the `roadmap` JSONB column on `aio_projects`, so anon-key
 blindness on that one table is the whole problem.
+
+There is also no way around it from inside this repo, checked on the 8 Oct run:
+the only service-role client is `supabaseAdmin()` in `lib/supabaseAdmin.js`,
+which runs server-side on Render, and none of the API routes (`/api/display`,
+`/api/eink/*`, `/api/satellite/report`, `/api/command/parse`,
+`/api/studyboy/*`) return project or roadmap rows — they're device endpoints
+behind their own secret tokens. So the routine's own environment is the only
+place this can be fixed. The variable the code already expects is
+`SUPABASE_SERVICE_ROLE_KEY`.
 
 Recommendation, since this keeps recurring: **put a service-role key in the
 routine's environment.** That's the only one of the three options that doesn't
@@ -60,10 +70,10 @@ and command bar → Studyboy generation were built and pushed on 21 Sep 2026.)
 
 ## Built — waiting on you to run the SQL
 
-All three still unrun as of 7 Oct 2026 — checked against the API;
+All three still unrun as of 8 Oct 2026 — checked against the API;
 `aio_studyboy_attempts`, `aio_notification_log` and `aio_study_resources` all
 404 as missing from the schema cache (`PGRST205`), so all three features are
-dormant. Sixteen days for the oldest. Every other table the code touches
+dormant. Seventeen days for the oldest. Every other table the code touches
 (`aio_checklist`, `aio_timetable`, `aio_projects`, `aio_project_updates`, `aio_settings`,
 `aio_routines`, `aio_routine_defs`, `aio_room_readings`, `aio_studyboy_docs`,
 `aio_studyboy_outputs`) exists and answers 200, so these three are the only
@@ -93,6 +103,19 @@ quietly rather than erroring. Delete the line once you've run it.
   exists, and surfaces a save error instead of swallowing one, so nothing can
   disappear like that again — but any links you added before today are gone
   and will need re-adding once the SQL is run.
+
+## These nightly notes are drifting onto a side branch again (8 Oct 2026)
+
+The process above says push to `main`, but `origin/main` is still at the 1 Oct
+commit. The 6 Oct and 7 Oct notes — and this one — are on
+`claude/kind-archimedes-fjbvns` instead, because the routine's session is
+configured with that as its designated branch and told not to push anywhere
+else without permission. Same failure mode as the 22 Sep note, so flagging it
+rather than quietly overriding one instruction with the other.
+
+Nothing is lost, but if you only read `main` you won't see these. Either merge
+`claude/kind-archimedes-fjbvns` into `main`, or set the routine's session to
+work on `main` directly so the two instructions agree.
 
 ## Not for this repo — tracked on the Ambient Intelligence Supabase roadmap
 
