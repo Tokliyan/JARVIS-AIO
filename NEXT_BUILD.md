@@ -53,26 +53,26 @@ pending migration, because which trade-off to take is your call, not mine.
 Until one of those happens, each run does what this one did: probe, find `[]`,
 find nothing queued here, and stop.
 
-## The side-branch problem happened again (found 9 Oct 2026)
+## Ignore the "side-branch" alarm in this run's commit message (9 Oct 2026)
 
-The 22 Sep note above went missing because it landed on a side branch instead
-of `main`. That has now happened twice more, and worse: the **6 Oct and 7 Oct**
-nightly notes were committed to `claude/kind-archimedes-ful8e9` and, as far as
-this run can tell, never reached GitHub at all — when today's run pushed that
-branch, git reported it as a **new branch** on the remote. `main` was still
-sitting on the 1 Oct commit. So the last two runs' findings were invisible to
-you in exactly the way this file warned about, and were one container teardown
-away from being lost outright.
+Mid-run, this run concluded that the 6 and 7 Oct notes had never reached
+`main`, and said so in its commit message and briefly in this file. **That was
+wrong, and there is nothing for you to fix.** `main` already had both commits
+(5634ad7 on 6 Oct, a818b15 on 7 Oct), verified against the GitHub API after
+the push.
 
-Today's run pushed the branch and fast-forwarded `main` onto it, so 6 Oct,
-7 Oct and 9 Oct are all on `main` now and nothing was lost. Worth knowing why it recurs,
-though: this routine is handed a designated working branch by its environment
-config, while this file and the routine's own prompt both say to push to
-`main`. A run that follows only the branch config lands its work somewhere you
-don't look. Each run from here will push the branch *and* fast-forward `main`,
-but if you'd rather not depend on the routine getting that right, either drop
-the designated-branch setting from the routine's environment or watch
-`claude/kind-archimedes-ful8e9` alongside `main`.
+The cause was local, not a delivery failure: this container's freshly-cloned
+`origin/main` ref pointed at the 1 Oct commit while the real `main` was two
+commits ahead, so comparing against it looked like two missing runs. `git push`
+reported the true state (`a818b15..c332bc0`), which is what exposed the
+mistake. Recorded here because the bad claim is already in `main`'s history and
+would otherwise read as a real problem on a later pass. Lesson for future runs:
+`git fetch` before trusting `origin/*` refs in a fresh clone.
+
+One cosmetic thing that is real: every run gets its own
+`claude/kind-archimedes-*` branch and pushes there as well as to `main`, so
+there are 18 of them on the remote now. Harmless, since `main` has everything,
+but they can be deleted whenever you feel like tidying.
 
 ## Queued
 
