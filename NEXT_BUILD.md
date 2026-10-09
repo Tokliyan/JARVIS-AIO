@@ -15,7 +15,7 @@ Process:
 - If something's ambiguous, leave a comment explaining what's unclear
   rather than guessing.
 
-## Routine can’t read the Supabase roadmap (found 22 Sep, still true 7 Oct 2026)
+## Routine can’t read the Supabase roadmap (found 22 Sep, still true 9 Oct 2026)
 
 The routine only has the anon key (`NEXT_PUBLIC_SUPABASE_ANON_KEY`). The REST
 API *is* reachable (HTTP 200), but RLS hides every row from an unauthenticated
@@ -35,9 +35,9 @@ keep queueing work in this file.
 
 This note was first written on 22 Sep but landed on a side branch, so it never
 reached `main` and you never saw it. Re-verified and landed here on 23 Sep, and
-re-checked on 27, 28, 29 Sep, 1, 6 and 7 Oct: `aio_projects`, `aio_checklist`
-and `aio_timetable` all still return `[]` with an empty `content-range`. Nine
-runs in a row now, spanning sixteen days, so any feature request you've dropped
+re-checked on 27, 28, 29 Sep, 1, 6, 7 and 9 Oct: `aio_projects`, `aio_checklist`
+and `aio_timetable` all still return `[]` with an empty `content-range`. Ten
+runs in a row now, spanning eighteen days, so any feature request you've dropped
 into the command bar since 21 Sep is sitting in the roadmap unseen and unbuilt.
 
 The roadmap is the `roadmap` JSONB column on `aio_projects`, so anon-key
@@ -53,6 +53,27 @@ pending migration, because which trade-off to take is your call, not mine.
 Until one of those happens, each run does what this one did: probe, find `[]`,
 find nothing queued here, and stop.
 
+## The side-branch problem happened again (found 9 Oct 2026)
+
+The 22 Sep note above went missing because it landed on a side branch instead
+of `main`. That has now happened twice more, and worse: the **6 Oct and 7 Oct**
+nightly notes were committed to `claude/kind-archimedes-ful8e9` and, as far as
+this run can tell, never reached GitHub at all — when today's run pushed that
+branch, git reported it as a **new branch** on the remote. `main` was still
+sitting on the 1 Oct commit. So the last two runs' findings were invisible to
+you in exactly the way this file warned about, and were one container teardown
+away from being lost outright.
+
+Today's run pushed the branch and fast-forwarded `main` onto it, so 6 Oct,
+7 Oct and 9 Oct are all on `main` now and nothing was lost. Worth knowing why it recurs,
+though: this routine is handed a designated working branch by its environment
+config, while this file and the routine's own prompt both say to push to
+`main`. A run that follows only the branch config lands its work somewhere you
+don't look. Each run from here will push the branch *and* fast-forward `main`,
+but if you'd rather not depend on the routine getting that right, either drop
+the designated-branch setting from the routine's environment or watch
+`claude/kind-archimedes-ful8e9` alongside `main`.
+
 ## Queued
 
 Nothing queued. (PWA support, the branded icon/favicon, loading skeletons
@@ -60,10 +81,10 @@ and command bar → Studyboy generation were built and pushed on 21 Sep 2026.)
 
 ## Built — waiting on you to run the SQL
 
-All three still unrun as of 7 Oct 2026 — checked against the API;
+All three still unrun as of 9 Oct 2026 — checked against the API;
 `aio_studyboy_attempts`, `aio_notification_log` and `aio_study_resources` all
 404 as missing from the schema cache (`PGRST205`), so all three features are
-dormant. Sixteen days for the oldest. Every other table the code touches
+dormant. Eighteen days for the oldest. Every other table the code touches
 (`aio_checklist`, `aio_timetable`, `aio_projects`, `aio_project_updates`, `aio_settings`,
 `aio_routines`, `aio_routine_defs`, `aio_room_readings`, `aio_studyboy_docs`,
 `aio_studyboy_outputs`) exists and answers 200, so these three are the only
