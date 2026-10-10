@@ -15,7 +15,7 @@ Process:
 - If something's ambiguous, leave a comment explaining what's unclear
   rather than guessing.
 
-## Routine can’t read the Supabase roadmap (found 22 Sep, still true 9 Oct 2026)
+## Routine can’t read the Supabase roadmap (found 22 Sep, still true 10 Oct 2026)
 
 The routine only has the anon key (`NEXT_PUBLIC_SUPABASE_ANON_KEY`). The REST
 API *is* reachable (HTTP 200), but RLS hides every row from an unauthenticated
@@ -35,10 +35,11 @@ keep queueing work in this file.
 
 This note was first written on 22 Sep but landed on a side branch, so it never
 reached `main` and you never saw it. Re-verified and landed here on 23 Sep, and
-re-checked on 27, 28, 29 Sep, 1, 6, 7 and 9 Oct: `aio_projects`, `aio_checklist`
-and `aio_timetable` all still return `[]` with an empty `content-range`. Ten
-runs in a row now, spanning eighteen days, so any feature request you've dropped
-into the command bar since 21 Sep is sitting in the roadmap unseen and unbuilt.
+re-checked on 27, 28, 29 Sep, 1, 6, 7, 9 and 10 Oct: `aio_projects`,
+`aio_checklist` and `aio_timetable` all still return `[]` with an empty
+`content-range`. Eleven runs in a row now, spanning nineteen days, so any
+feature request you've dropped into the command bar since 21 Sep is sitting in
+the roadmap unseen and unbuilt.
 
 The roadmap is the `roadmap` JSONB column on `aio_projects`, so anon-key
 blindness on that one table is the whole problem.
@@ -53,25 +54,19 @@ pending migration, because which trade-off to take is your call, not mine.
 Until one of those happens, each run does what this one did: probe, find `[]`,
 find nothing queued here, and stop.
 
-## Ignore the "side-branch" alarm in this run's commit message (9 Oct 2026)
+## Closed: the "side-branch" alarm from the 9 Oct run was wrong (no action needed)
 
-Mid-run, this run concluded that the 6 and 7 Oct notes had never reached
-`main`, and said so in its commit message and briefly in this file. **That was
-wrong, and there is nothing for you to fix.** `main` already had both commits
-(5634ad7 on 6 Oct, a818b15 on 7 Oct), verified against the GitHub API after
-the push.
-
-The cause was local, not a delivery failure: this container's freshly-cloned
-`origin/main` ref pointed at the 1 Oct commit while the real `main` was two
-commits ahead, so comparing against it looked like two missing runs. `git push`
-reported the true state (`a818b15..c332bc0`), which is what exposed the
-mistake. Recorded here because the bad claim is already in `main`'s history and
-would otherwise read as a real problem on a later pass. Lesson for future runs:
-`git fetch` before trusting `origin/*` refs in a fresh clone.
+The 9 Oct run claimed the 6 and 7 Oct notes never reached `main`. That was
+wrong — both commits were there all along (5634ad7, a818b15), and commit
+e079451 retracted it. The cause was local: this container's freshly-cloned
+`origin/main` ref lagged the real `main`, so the comparison looked like missing
+runs. Kept here only because the bad claim is in `main`'s history and would
+otherwise read as a real problem. Lesson, applied on this run: `git fetch`
+before trusting `origin/*` refs in a fresh clone.
 
 One cosmetic thing that is real: every run gets its own
 `claude/kind-archimedes-*` branch and pushes there as well as to `main`, so
-there are 18 of them on the remote now. Harmless, since `main` has everything,
+`git ls-remote` counted 18 before this run pushed its own, so 19 now. Harmless, since `main` has everything,
 but they can be deleted whenever you feel like tidying.
 
 ## Queued
@@ -81,10 +76,10 @@ and command bar → Studyboy generation were built and pushed on 21 Sep 2026.)
 
 ## Built — waiting on you to run the SQL
 
-All three still unrun as of 9 Oct 2026 — checked against the API;
+All three still unrun as of 10 Oct 2026 — checked against the API;
 `aio_studyboy_attempts`, `aio_notification_log` and `aio_study_resources` all
 404 as missing from the schema cache (`PGRST205`), so all three features are
-dormant. Eighteen days for the oldest. Every other table the code touches
+dormant. Nineteen days for the oldest. Every other table the code touches
 (`aio_checklist`, `aio_timetable`, `aio_projects`, `aio_project_updates`, `aio_settings`,
 `aio_routines`, `aio_routine_defs`, `aio_room_readings`, `aio_studyboy_docs`,
 `aio_studyboy_outputs`) exists and answers 200, so these three are the only
