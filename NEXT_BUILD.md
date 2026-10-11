@@ -15,7 +15,7 @@ Process:
 - If something's ambiguous, leave a comment explaining what's unclear
   rather than guessing.
 
-## Routine can’t read the Supabase roadmap (found 22 Sep, still true 10 Oct 2026)
+## Routine can’t read the Supabase roadmap (found 22 Sep, still true 11 Oct 2026)
 
 The routine only has the anon key (`NEXT_PUBLIC_SUPABASE_ANON_KEY`). The REST
 API *is* reachable (HTTP 200), but RLS hides every row from an unauthenticated
@@ -35,9 +35,9 @@ keep queueing work in this file.
 
 This note was first written on 22 Sep but landed on a side branch, so it never
 reached `main` and you never saw it. Re-verified and landed here on 23 Sep, and
-re-checked on 27, 28, 29 Sep, 1, 6, 7, 9 and 10 Oct: `aio_projects`,
+re-checked on 27, 28, 29 Sep, 1, 6, 7, 9, 10 and 11 Oct: `aio_projects`,
 `aio_checklist` and `aio_timetable` all still return `[]` with an empty
-`content-range`. Eleven runs in a row now, spanning nineteen days, so any
+`content-range`. Twelve runs in a row now, spanning twenty days, so any
 feature request you've dropped into the command bar since 21 Sep is sitting in
 the roadmap unseen and unbuilt.
 
@@ -54,6 +54,13 @@ pending migration, because which trade-off to take is your call, not mine.
 Until one of those happens, each run does what this one did: probe, find `[]`,
 find nothing queued here, and stop.
 
+**Changed on the 11 Oct run:** the first eleven runs only recorded this in
+commit messages, which is why you never saw it — nobody reads a commit titled
+“nothing queued”. This run sent you a push notification instead, with the
+verification and the three options. Future runs should do the same rather than
+adding another silent note: a blocked routine is worth interrupting you for,
+and a quiet one looks identical to a healthy one.
+
 ## Closed: the "side-branch" alarm from the 9 Oct run was wrong (no action needed)
 
 The 9 Oct run claimed the 6 and 7 Oct notes never reached `main`. That was
@@ -66,8 +73,9 @@ before trusting `origin/*` refs in a fresh clone.
 
 One cosmetic thing that is real: every run gets its own
 `claude/kind-archimedes-*` branch and pushes there as well as to `main`, so
-`git ls-remote` counted 18 before this run pushed its own, so 19 now. Harmless, since `main` has everything,
-but they can be deleted whenever you feel like tidying.
+`git ls-remote` counted 19 before the 11 Oct run pushed its own, so 20 now.
+Harmless, since `main` has everything, but they can be deleted whenever you
+feel like tidying.
 
 ## Queued
 
@@ -76,14 +84,15 @@ and command bar → Studyboy generation were built and pushed on 21 Sep 2026.)
 
 ## Built — waiting on you to run the SQL
 
-All three still unrun as of 10 Oct 2026 — checked against the API;
+All four still unrun as of 11 Oct 2026 — checked against the API;
 `aio_studyboy_attempts`, `aio_notification_log` and `aio_study_resources` all
 404 as missing from the schema cache (`PGRST205`), so all three features are
-dormant. Nineteen days for the oldest. Every other table the code touches
+dormant, and `aio_studyboy_docs.doc_number` does not exist (`42703`). Twenty
+days for the oldest. Every other table the code touches
 (`aio_checklist`, `aio_timetable`, `aio_projects`, `aio_project_updates`, `aio_settings`,
 `aio_routines`, `aio_routine_defs`, `aio_room_readings`, `aio_studyboy_docs`,
-`aio_studyboy_outputs`) exists and answers 200, so these three are the only
-schema gaps.
+`aio_studyboy_outputs`) exists and answers 200, so these four — three missing
+tables and one missing column — are the only schema gaps.
 
 These are code-complete and pushed. Each needs its SQL run by hand in
 Supabase → SQL Editor before it does anything; until then the app degrades
@@ -109,6 +118,15 @@ quietly rather than erroring. Delete the line once you've run it.
   exists, and surfaces a save error instead of swallowing one, so nothing can
   disappear like that again — but any links you added before today are gone
   and will need re-adding once the SQL is run.
+
+- **Studyboy doc numbers (optional)** →
+  `pending-sql/004_aio_studyboy_doc_numbers.sql`. Shipped with the Kindle
+  “Ask JARVIS” channel on 10 Oct but never listed here, so it was easy to
+  miss — added to this list on the 11 Oct run. Gives each Studyboy doc a
+  stable `doc_number`, so “open doc 3” means the same doc even after an
+  earlier one is deleted. Unlike 001–003 this one is genuinely optional: the
+  Kindle command route already numbers docs in upload order and works
+  without it. Run it only if you want the numbers to stay put.
 
 ## Not for this repo — tracked on the Ambient Intelligence Supabase roadmap
 
