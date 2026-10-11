@@ -24,7 +24,17 @@ export default function SourceMaterial({ subject, setSubject, sourceText, setSou
       .select('*')
       .order('uploaded_at', { ascending: false })
       .limit(20);
-    setDocs(data || []);
+    // Same numbering the Kindle uses: the doc_number column once the pending SQL
+    // has run, otherwise upload order (oldest = 1).
+    const oldestFirst = [...(data || [])].sort(
+      (a, b) => new Date(a.uploaded_at || 0) - new Date(b.uploaded_at || 0),
+    );
+    setDocs(
+      (data || []).map((d) => ({
+        ...d,
+        n: d.doc_number ?? oldestFirst.findIndex((x) => x.id === d.id) + 1,
+      })),
+    );
   }
 
   function fileToBase64(file) {
@@ -191,6 +201,7 @@ export default function SourceMaterial({ subject, setSubject, sourceText, setSou
                 className="group flex items-center gap-2 rounded border border-border px-2 py-1 text-xs text-ink hover:bg-bg"
               >
                 <span>
+                  <span className="mr-1 font-mono text-muted">#{d.n}</span>
                   {d.subject} · {d.file_name}
                 </span>
                 <span
