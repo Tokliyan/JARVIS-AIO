@@ -34,8 +34,9 @@ finding ("RuneHaven didn't report").
   shallow-fetch main plus the newest `claude/*` branch; if the newest night's
   commit is a RED / BUILD_FAILED stop, capture the one-line reason even if
   RuneHaven did report.
-- Rade.XT: `curl https://api.github.com/repos/Tokliyan/Rade.XT/actions/runs?per_page=30`
-  and flag any failed runs in the last 24h by workflow name.
+- Rade.XT: `gh api "repos/Tokliyan/Rade.XT/actions/runs?per_page=30"` (the
+  repo is attached to this routine; fall back to plain curl) and flag any
+  failed runs in the last 24h by workflow name.
 - JARVIS: read `NEXT_BUILD.md` in this repo (pull first) and list the
   pending-sql files still under "waiting on you to run the SQL";
   `GET /api/nightrun/queue` and count open roadmap items.
@@ -43,7 +44,10 @@ finding ("RuneHaven didn't report").
 ## 3. LeadLens — outreach toward a FIRST PAYING CUSTOMER
 a. Read the Google Sheet **LeadLens Data** (Drive file id
    `1rX12FqrF2UjcvaAh2wsyLUDNjTztngdzhIWYzQg95AA`) with the Google Drive
-   connector. Tab "Leads": id, handle, niche, status, score, scoreLabel,
+   connector. Get EVERY row: `read_file_content` can return only a sample,
+   so prefer `download_file_content` exporting the sheet as CSV (text/csv);
+   if you still only have a sample, say "partial read" in the report and
+   don't present the picks as the top of the whole list. Tab "Leads": id, handle, niche, status, score, scoreLabel,
    agent, price, pitch, notes, followUpDate, replyText, createdAt. Tab
    "Discovery Queue": handles waiting to be scored.
 b. Today's outreach: the 3 highest-score leads with status `new` (never
