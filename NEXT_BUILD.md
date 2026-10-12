@@ -12,54 +12,28 @@ Process:
   Ambient Intelligence roadmap once built. If not, just note it in the
   commit message.
 - Once an item below is built and pushed, delete its line from this file.
+- Finish every run by POSTing a report to `/api/nightrun/report` (section
+  `jarvis`) — see "Roadmap access" below.
 - If something's ambiguous, leave a comment explaining what's unclear
   rather than guessing.
 
-## Routine can’t read the Supabase roadmap (found 22 Sep, still true 11 Oct 2026)
+## Roadmap access — fixed 12 Oct 2026 (Night Run)
 
-The routine only has the anon key (`NEXT_PUBLIC_SUPABASE_ANON_KEY`). The REST
-API *is* reachable (HTTP 200), but RLS hides every row from an unauthenticated
-key: `aio_timetable`, `aio_checklist` and `aio_projects` all come back `[]`
-with `content-range: */0`. So the routine cannot see the roadmap at all, and an
-empty response is indistinguishable from "nothing planned" — which means a
-future run could go quiet forever instead of reporting that it's blind.
+The 20-day "roadmap blind" problem (anon key + RLS → every `aio_` table reads
+as `[]`) is fixed without giving the routine a service-role key and without
+opening any table to the public: the routine now asks the app instead.
 
-This also breaks the command bar loop: a `feature_request` tells you "Saved to
-Ambient Intelligence's roadmap — needs an actual build session", but the build
-session can't read it. Anything queued that way is invisible to this routine.
+- `GET  /api/nightrun/queue` → every roadmap item that isn't `done`, read
+  server-side with the service key. `?project=ambient` narrows it.
+- `POST /api/nightrun/queue` → `{ project_id, title, status }` to mark an item
+  `in_progress` or `done` (exact title match).
+- `POST /api/nightrun/report` → the routine's end-of-run report, which shows
+  on Daily Status → Night run and on the Kindle.
 
-Until that's resolved, **this file is the only queue the routine can see.**
-Your call which way to fix it: give the routine a service-role key in its env,
-add an RLS policy letting the anon key read `aio_projects.roadmap`, or just
-keep queueing work in this file.
-
-This note was first written on 22 Sep but landed on a side branch, so it never
-reached `main` and you never saw it. Re-verified and landed here on 23 Sep, and
-re-checked on 27, 28, 29 Sep, 1, 6, 7, 9, 10 and 11 Oct: `aio_projects`,
-`aio_checklist` and `aio_timetable` all still return `[]` with an empty
-`content-range`. Twelve runs in a row now, spanning twenty days, so any
-feature request you've dropped into the command bar since 21 Sep is sitting in
-the roadmap unseen and unbuilt.
-
-The roadmap is the `roadmap` JSONB column on `aio_projects`, so anon-key
-blindness on that one table is the whole problem.
-
-Recommendation, since this keeps recurring: **put a service-role key in the
-routine's environment.** That's the only one of the three options that doesn't
-change what the public can read — the anon key ships to every browser, so an
-RLS policy opening `aio_projects` to it would make your projects and roadmap
-world-readable to anyone who views source. I haven't written that policy as a
-pending migration, because which trade-off to take is your call, not mine.
-
-Until one of those happens, each run does what this one did: probe, find `[]`,
-find nothing queued here, and stop.
-
-**Changed on the 11 Oct run:** the first eleven runs only recorded this in
-commit messages, which is why you never saw it — nobody reads a commit titled
-“nothing queued”. This run sent you a push notification instead, with the
-verification and the three options. Future runs should do the same rather than
-adding another silent note: a blocked routine is worth interrupting you for,
-and a quiet one looks identical to a healthy one.
+All three need `Authorization: Bearer $NIGHT_RUN_TOKEN`. The token must be set
+in **Render → Environment** (same value) and in the **routine's environment**.
+If the routine sees a 401/500 from these, that's the thing to report — never
+treat an error as "nothing queued".
 
 ## Closed: the "side-branch" alarm from the 9 Oct run was wrong (no action needed)
 
@@ -118,6 +92,11 @@ quietly rather than erroring. Delete the line once you've run it.
   exists, and surfaces a save error instead of swallowing one, so nothing can
   disappear like that again — but any links you added before today are gone
   and will need re-adding once the SQL is run.
+
+- **Night Run reports** → `pending-sql/005_aio_night_runs.sql`. Added 12
+  Oct. The table every overnight job (Rade.XT, RuneHaven, this routine, the
+  morning check) writes its report into. Until it's run, reports are rejected
+  with a "run pending-sql/005" error and the Night run card says so.
 
 - **Studyboy doc numbers (optional)** →
   `pending-sql/004_aio_studyboy_doc_numbers.sql`. Shipped with the Kindle

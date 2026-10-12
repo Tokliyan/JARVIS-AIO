@@ -3,12 +3,14 @@ export const state = {
   tables: {},
   inserts: [],
   noDocNumberColumn: false,
+  missingTables: [],
 };
 
 export function resetState(tables = {}) {
   state.tables = structuredClone(tables);
   state.inserts = [];
   state.noDocNumberColumn = false;
+  state.missingTables = [];
 }
 
 let idCounter = 0;
@@ -25,6 +27,8 @@ class Query {
   }
   select(cols = '*') { this.cols = cols; return this; }
   eq(col, val) { this.filters.push([col, val]); return this; }
+  in(col, vals) { this.filters.push([col, vals, 'in']); return this; }
+  update(patch) { this.patch = patch; return this; }
   order(col, opts = {}) { this.ordering = [col, opts.ascending !== false]; return this; }
   limit(n) { this.max = n; return this; }
   insert(rows) { this.rows = Array.isArray(rows) ? rows : [rows]; return this; }
@@ -33,6 +37,9 @@ class Query {
   then(resolve, reject) { return this.run().then(resolve, reject); }
 
   async run() {
+    if (state.missingTables.includes(this.table)) {
+      return { data: null, error: { message: `Could not find the table 'public.${this.table}' in the schema cache` } };
+    }
     if (
       this.table === 'aio_studyboy_docs' &&
       state.noDocNumberColumn &&
@@ -46,8 +53,13 @@ class Query {
       state.inserts.push({ table: this.table, rows: stored });
       return { data: this.mode === 'single' ? stored[0] : stored, error: null };
     }
-    let out = [...(state.tables[this.table] || [])];
-    for (const [c, v] of this.filters) out = out.filter((r) => r[c] === v);
+    const match = (r) => this.filters.every(([c, v, op]) => (op === 'in' ? v.includes(r[c]) : r[c] === v));
+    if (this.patch) {
+      const hit = (state.tables[this.table] || []).filter(match);
+      hit.forEach((r) => Object.assign(r, this.patch));
+      return { data: hit, error: null };
+    }
+    let out = (state.tables[this.table] || []).filter(match);
     if (this.ordering) {
       const [c, asc] = this.ordering;
       out.sort((a, b) => (a[c] > b[c] ? 1 : a[c] < b[c] ? -1 : 0) * (asc ? 1 : -1));

@@ -8,6 +8,7 @@
 // GET /api/eink/projects?key=...
 
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { latestPerSection, needsYouFor } from '@/lib/nightRun';
 
 const OWNER_ID = '04b4fa14-b541-4b23-92d6-886d6202d727';
 const DAY_LABELS = { 1: 'Monday', 2: 'Tuesday', 3: 'Wednesday', 4: 'Thursday', 5: 'Friday' };
@@ -92,12 +93,23 @@ export default async function handler(req, res) {
 
   try {
     if (view === 'today') {
-      const [{ data: settingsRow }, { data: periods }, { data: tasks }, { data: readings }] = await Promise.all([
+      const [{ data: settingsRow }, { data: periods }, { data: tasks }, { data: readings }, { data: nightRows }] = await Promise.all([
         db.from('aio_settings').select('value').eq('user_id', OWNER_ID).eq('key', 'current_week').maybeSingle(),
         db.from('aio_timetable').select('*').eq('user_id', OWNER_ID).eq('day_of_week', dayNum).order('start_time'),
         db.from('aio_checklist').select('*').eq('user_id', OWNER_ID).eq('due_date', todayISO),
         db.from('aio_room_readings').select('*').eq('user_id', OWNER_ID).order('recorded_at', { ascending: false }).limit(1),
+        db.from('aio_night_runs').select('*').eq('user_id', OWNER_ID).order('run_date', { ascending: false }).limit(20),
       ]);
+      const latestDate = nightRows?.[0]?.run_date;
+      const nightReports = latestDate ? latestPerSection(nightRows.filter((r) => r.run_date === latestDate)) : [];
+      const nightNeeds = needsYouFor(nightReports);
+      const nightHtml = !nightReports.length
+        ? ''
+        : `<h2>Night run</h2>${
+            nightNeeds.length
+              ? `<ul>${nightNeeds.slice(0, 5).map((n) => `<li><span>${escapeHtml(n)}</span></li>`).join('')}</ul>`
+              : `<p class="empty">Nothing needs you.</p>`
+          }`;
       const currentWeek = settingsRow?.value || 'A';
       const visiblePeriods = (periods || []).filter((p) => !p.week_type || p.week_type === currentWeek);
       const reading = readings?.[0];
@@ -127,6 +139,7 @@ export default async function handler(req, res) {
           `<h1>Today</h1><div class="meta">${escapeHtml(nowLabel)} \u00b7 Week ${escapeHtml(currentWeek)}</div>
            <h2>Schedule</h2>${scheduleHtml}
            <h2>Due today</h2>${tasksHtml}
+           ${nightHtml}
            <h2>Room</h2><p>${escapeHtml(roomLine)}</p>`,
         ),
       );

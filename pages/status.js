@@ -3,6 +3,7 @@ import RoomCard from '@/components/RoomCard';
 import RoutineStreaks from '@/components/RoutineStreaks';
 import NeedsAttentionCard from '@/components/NeedsAttentionCard';
 import SectionLabel from '@/components/SectionLabel';
+import NightRunCard from '@/components/NightRunCard';
 
 export default function StatusPage() {
   const now = new Date();
@@ -18,6 +19,10 @@ export default function StatusPage() {
 
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_15rem]">
         <section>
+          <div className="mb-8">
+            <SectionLabel>Night run</SectionLabel>
+            <NightRunCard />
+          </div>
           <TimeSpine />
         </section>
 

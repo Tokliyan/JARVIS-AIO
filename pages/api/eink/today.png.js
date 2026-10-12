@@ -8,6 +8,7 @@
 
 import { createCanvas } from '@napi-rs/canvas';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { latestPerSection, needsYouFor } from '@/lib/nightRun';
 
 const OWNER_ID = '04b4fa14-b541-4b23-92d6-886d6202d727';
 
@@ -49,18 +50,28 @@ export default async function handler(req, res) {
     y += lineGap * 1.5;
   }
 
+  // Trims a line with an ellipsis so it never runs off the right edge.
+  function fit(text, maxWidth) {
+    let t = String(text);
+    if (ctx.measureText(t).width <= maxWidth) return t;
+    while (t.length > 1 && ctx.measureText(t + '\u2026').width > maxWidth) t = t.slice(0, -1);
+    return t + '\u2026';
+  }
+
   try {
     const db = supabaseAdmin();
     const now = new Date();
     const dayNum = now.getDay();
     const todayISO = now.toISOString().slice(0, 10);
 
-    const [{ data: settingsRow }, { data: periods }, { data: tasks }, { data: readings }, { data: projects }] = await Promise.all([
+    const [{ data: settingsRow }, { data: periods }, { data: tasks }, { data: readings }, { data: projects }, { data: nightRows }] = await Promise.all([
       db.from('aio_settings').select('value').eq('user_id', OWNER_ID).eq('key', 'current_week').maybeSingle(),
       db.from('aio_timetable').select('*').eq('user_id', OWNER_ID).eq('day_of_week', dayNum).order('start_time'),
       db.from('aio_checklist').select('*').eq('user_id', OWNER_ID).eq('due_date', todayISO),
       db.from('aio_room_readings').select('*').eq('user_id', OWNER_ID).order('recorded_at', { ascending: false }).limit(1),
       db.from('aio_projects').select('name, status_label, status_color').eq('user_id', OWNER_ID).in('status_color', ['warn', 'bad']),
+      // Fails soft: until pending-sql/005 is run this just returns an error and the section is skipped.
+      db.from('aio_night_runs').select('*').eq('user_id', OWNER_ID).order('run_date', { ascending: false }).limit(20),
     ]);
     const currentWeek = settingsRow?.value || 'A';
     const visiblePeriods = (periods || []).filter((p) => !p.week_type || p.week_type === currentWeek);
@@ -126,6 +137,29 @@ export default async function handler(req, res) {
         }
         y += bodyFont + lineGap * 1.3;
         if (y > height - 60) break;
+      }
+    }
+
+    // Night run — only the things that need Harsh, straight from the morning check
+    const latestDate = nightRows?.[0]?.run_date;
+    const nightReports = latestDate ? latestPerSection(nightRows.filter((r) => r.run_date === latestDate)) : [];
+    const nightNeeds = needsYouFor(nightReports);
+    if (nightReports.length && y < height - 180) {
+      y += lineGap;
+      hr();
+      ctx.font = `bold ${headFont}px sans-serif`;
+      ctx.fillText('Night run', pad, y + headFont);
+      y += headFont + lineGap;
+      ctx.font = `${bodyFont}px sans-serif`;
+      if (nightNeeds.length === 0) {
+        ctx.fillText('Nothing needs you.', pad, y + bodyFont);
+        y += bodyFont + lineGap;
+      } else {
+        for (const n of nightNeeds.slice(0, 4)) {
+          ctx.fillText(fit(`\u2022 ${n}`, width - pad * 2), pad, y + bodyFont);
+          y += bodyFont + lineGap * 1.3;
+          if (y > height - 160) break;
+        }
       }
     }
 
