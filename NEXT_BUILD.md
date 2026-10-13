@@ -17,6 +17,31 @@ Process:
 - If something's ambiguous, leave a comment explaining what's unclear
   rather than guessing.
 
+## BLOCKED — 13 Oct 2026: the roadmap is unreadable again (needs you)
+
+`NIGHT_RUN_TOKEN` is **not set in Render → Environment**. Every
+`/api/nightrun/*` call returns `500 {"error":"NIGHT_RUN_TOKEN is not set on
+the server"}` — checked on this run against `/queue`, `/queue?project=ambient`
+and `/report`. The site itself is fine (`/login` → 200), and the deploy is
+current (the error text comes from `lib/nightRun.js`), so this is only the
+missing environment variable.
+
+What it costs until you set it:
+
+- **The roadmap is blind again.** Falling back to the Supabase REST API with
+  the anon key still returns `[]` for `aio_projects` (RLS, as documented
+  below) — so this run could not see a single roadmap item. That is *not*
+  "nothing planned"; it is "could not look". Nothing was built this run, and
+  nothing should be read into that.
+- **No overnight job can report.** `POST /api/nightrun/report` is rejected
+  the same way, for Rade.XT, RuneHaven, this routine and the 5:52am morning
+  check alike, so Daily Status → Night run and the Kindle card have no data.
+  This is now the only thing stopping the Night Run hub working end to end —
+  `aio_night_runs` itself exists (see below).
+
+Fix: Render → Environment → add `NIGHT_RUN_TOKEN` with the same value this
+routine already has, and redeploy. Nothing in this repo needs changing.
+
 ## Roadmap access — fixed 12 Oct 2026 (Night Run)
 
 The 20-day "roadmap blind" problem (anon key + RLS → every `aio_` table reads
@@ -53,57 +78,28 @@ feel like tidying.
 
 ## Queued
 
-Nothing queued. (PWA support, the branded icon/favicon, loading skeletons
-and command bar → Studyboy generation were built and pushed on 21 Sep 2026.)
+Nothing queued *in this file*. (PWA support, the branded icon/favicon, loading
+skeletons and command bar → Studyboy generation were built and pushed on 21 Sep
+2026.) Note this says nothing about the Supabase roadmap, which could not be
+read on 13 Oct — see the BLOCKED section at the top.
 
 ## Built — waiting on you to run the SQL
 
-All four still unrun as of 11 Oct 2026 — checked against the API;
-`aio_studyboy_attempts`, `aio_notification_log` and `aio_study_resources` all
-404 as missing from the schema cache (`PGRST205`), so all three features are
-dormant, and `aio_studyboy_docs.doc_number` does not exist (`42703`). Twenty
-days for the oldest. Every other table the code touches
-(`aio_checklist`, `aio_timetable`, `aio_projects`, `aio_project_updates`, `aio_settings`,
-`aio_routines`, `aio_routine_defs`, `aio_room_readings`, `aio_studyboy_docs`,
-`aio_studyboy_outputs`) exists and answers 200, so these four — three missing
-tables and one missing column — are the only schema gaps.
+**Checked on the 13 Oct 2026 run, and this is good news:**
+`aio_studyboy_attempts`, `aio_notification_log`, `aio_study_resources` and
+`aio_night_runs` all answer **200** from the REST API now, where on 11 Oct
+they all 404'd as missing from the schema cache (`PGRST205`). So 001, 002,
+003 and 005 have been run — their features (Weak topics, the Notifications
+log, Resources per subject, and Night Run report storage) are live, and
+those four lines are deleted from this list accordingly.
 
-These are code-complete and pushed. Each needs its SQL run by hand in
-Supabase → SQL Editor before it does anything; until then the app degrades
-quietly rather than erroring. Delete the line once you've run it.
-
-- **Studyboy: track quiz and flashcard results over time** →
-  `pending-sql/001_aio_studyboy_attempts.sql`. Every quiz mark and flashcard
-  rating writes an attempt; the "Weak topics" widget at the top of Studyboy's
-  Create tab reads them back. Widget stays hidden until the table exists.
-
-- **Notifications log view** → `pending-sql/002_aio_notification_log.sql`.
-  Processed command-bar notifications get logged with what was captured,
-  which subjects, how many tasks, and whether a study plan was built. Shows
-  up under Studyboy → Notifications. Processing still works without it; it
-  just isn't logged.
-
-- **Study resources per subject** → `pending-sql/003_aio_study_resources.sql`.
-  This one is a catch-up rather than a new feature, and it was losing data:
-  the "Resources — <subject>" panel shipped on 21 Sep without ever having a
-  table, so every link typed into it failed to save, the panel reloaded empty,
-  and nothing said why. Found on the 27 Sep run by checking every table the
-  code touches against the API. The panel now hides itself until the table
-  exists, and surfaces a save error instead of swallowing one, so nothing can
-  disappear like that again — but any links you added before today are gone
-  and will need re-adding once the SQL is run.
-
-- **Night Run reports** → `pending-sql/005_aio_night_runs.sql`. Added 12
-  Oct. The table every overnight job (Rade.XT, RuneHaven, this routine, the
-  morning check) writes its report into. Until it's run, reports are rejected
-  with a "run pending-sql/005" error and the Night run card says so.
+One left, and it is the optional one:
 
 - **Studyboy doc numbers (optional)** →
-  `pending-sql/004_aio_studyboy_doc_numbers.sql`. Shipped with the Kindle
-  “Ask JARVIS” channel on 10 Oct but never listed here, so it was easy to
-  miss — added to this list on the 11 Oct run. Gives each Studyboy doc a
-  stable `doc_number`, so “open doc 3” means the same doc even after an
-  earlier one is deleted. Unlike 001–003 this one is genuinely optional: the
+  `pending-sql/004_aio_studyboy_doc_numbers.sql`. Still unrun —
+  `aio_studyboy_docs.doc_number` does not exist (`42703`), confirmed this
+  run. Gives each Studyboy doc a stable `doc_number`, so "open doc 3" means
+  the same doc even after an earlier one is deleted. Genuinely optional: the
   Kindle command route already numbers docs in upload order and works
   without it. Run it only if you want the numbers to stay put.
 
