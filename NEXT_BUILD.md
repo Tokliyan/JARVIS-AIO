@@ -17,30 +17,27 @@ Process:
 - If something's ambiguous, leave a comment explaining what's unclear
   rather than guessing.
 
-## BLOCKED — 13 Oct 2026: the roadmap is unreadable again (needs you)
+## Unblocked — 14 Oct 2026: the roadmap reads fine, and nothing is queued
 
-`NIGHT_RUN_TOKEN` is **not set in Render → Environment**. Every
-`/api/nightrun/*` call returns `500 {"error":"NIGHT_RUN_TOKEN is not set on
-the server"}` — checked on this run against `/queue`, `/queue?project=ambient`
-and `/report`. The site itself is fine (`/login` → 200), and the deploy is
-current (the error text comes from `lib/nightRun.js`), so this is only the
-missing environment variable.
+`NIGHT_RUN_TOKEN` **is** set in Render now, so the 13 Oct blocker (which used
+to fill this section) is closed. Checked on this run:
 
-What it costs until you set it:
+- `GET /api/nightrun/queue` → **200** `{"projects_seen":4,"items":[]}`, and
+  `?project=ambient` the same. That is the service-key read going through, so
+  the roadmap was genuinely *readable* this run — and it genuinely has **no
+  item that isn't `done`** across all 4 projects. Nothing was built
+  this run because there was nothing to build, not because the roadmap was
+  blind.
+- `GET /api/nightrun/report` → 200, with `rade` and `runehaven` already in for
+  2026-10-14, so the Night Run hub works end to end: jobs can report, Daily
+  Status → Night run and the Kindle card have data.
+- `/login` → 200, `npm run build` succeeded, `npm test` 25/25.
 
-- **The roadmap is blind again.** Falling back to the Supabase REST API with
-  the anon key still returns `[]` for `aio_projects` (RLS, as documented
-  below) — so this run could not see a single roadmap item. That is *not*
-  "nothing planned"; it is "could not look". Nothing was built this run, and
-  nothing should be read into that.
-- **No overnight job can report.** `POST /api/nightrun/report` is rejected
-  the same way, for Rade.XT, RuneHaven, this routine and the 5:52am morning
-  check alike, so Daily Status → Night run and the Kindle card have no data.
-  This is now the only thing stopping the Night Run hub working end to end —
-  `aio_night_runs` itself exists (see below).
-
-Fix: Render → Environment → add `NIGHT_RUN_TOKEN` with the same value this
-routine already has, and redeploy. Nothing in this repo needs changing.
+**If you want this routine to build something, put it on a roadmap.** Add
+items to the Ambient Intelligence project's roadmap in the app (status
+`planned`), or add a line under "Queued" below. An empty queue means an idle
+routine — which is the right outcome tonight, but it is the only reason
+nothing shipped.
 
 ## Roadmap access — fixed 12 Oct 2026 (Night Run)
 
@@ -67,8 +64,10 @@ wrong — both commits were there all along (5634ad7, a818b15), and commit
 e079451 retracted it. The cause was local: this container's freshly-cloned
 `origin/main` ref lagged the real `main`, so the comparison looked like missing
 runs. Kept here only because the bad claim is in `main`'s history and would
-otherwise read as a real problem. Lesson, applied on this run: `git fetch`
-before trusting `origin/*` refs in a fresh clone.
+otherwise read as a real problem. Lesson: `git fetch` (or `git ls-remote`)
+before trusting `origin/*` refs in a fresh clone — it happened again on the
+14 Oct run, where the clone's `origin/main` read `d8a6f25` while the real
+`main` was two commits further on at `4218a5b`.
 
 One cosmetic thing that is real: every run gets its own
 `claude/kind-archimedes-*` branch and pushes there as well as to `main`, so
@@ -80,12 +79,12 @@ feel like tidying.
 
 Nothing queued *in this file*. (PWA support, the branded icon/favicon, loading
 skeletons and command bar → Studyboy generation were built and pushed on 21 Sep
-2026.) Note this says nothing about the Supabase roadmap, which could not be
-read on 13 Oct — see the BLOCKED section at the top.
+2026.) The Supabase roadmap was read successfully on 14 Oct and is also empty
+of open items — see the top section.
 
 ## Built — waiting on you to run the SQL
 
-**Checked on the 13 Oct 2026 run, and this is good news:**
+**Checked on the 13 Oct 2026 run, and re-checked on 14 Oct — still true:**
 `aio_studyboy_attempts`, `aio_notification_log`, `aio_study_resources` and
 `aio_night_runs` all answer **200** from the REST API now, where on 11 Oct
 they all 404'd as missing from the schema cache (`PGRST205`). So 001, 002,
@@ -97,8 +96,8 @@ One left, and it is the optional one:
 
 - **Studyboy doc numbers (optional)** →
   `pending-sql/004_aio_studyboy_doc_numbers.sql`. Still unrun —
-  `aio_studyboy_docs.doc_number` does not exist (`42703`), confirmed this
-  run. Gives each Studyboy doc a stable `doc_number`, so "open doc 3" means
+  `aio_studyboy_docs.doc_number` does not exist (`42703`), confirmed again on
+  the 14 Oct run. Gives each Studyboy doc a stable `doc_number`, so "open doc 3" means
   the same doc even after an earlier one is deleted. Genuinely optional: the
   Kindle command route already numbers docs in upload order and works
   without it. Run it only if you want the numbers to stay put.
