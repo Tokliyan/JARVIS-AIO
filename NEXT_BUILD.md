@@ -28,9 +28,15 @@ to fill this section) is closed. Checked on this run:
   item that isn't `done`** across all 4 projects. Nothing was built
   this run because there was nothing to build, not because the roadmap was
   blind.
-- `GET /api/nightrun/report` → 200, with `rade` and `runehaven` already in for
-  2026-10-14, so the Night Run hub works end to end: jobs can report, Daily
-  Status → Night run and the Kindle card have data.
+- `GET /api/nightrun/report` → 200, and `POST` → 200 (this run's `jarvis`
+  section stored, `run_date` 2026-10-15), so the Night Run hub works end to
+  end: jobs can report, and Daily Status → Night run and the Kindle card have
+  data. To be exact about *whose* data: the night that has all four sections
+  (`rade`, `runehaven`, `leadlens`, `morning`) is `run_date` **2026-10-14**,
+  the previous one. This run posted at 05:17 Sydney on the 15th and was the
+  first report in for 2026-10-15 — rade (~4:30am) and runehaven (~5am) were
+  not in yet, which at that hour is "not yet", not "didn't report". The
+  5:52am morning check is the one that decides that.
 - `/login` → 200, `npm run build` succeeded, `npm test` 25/25.
 
 **If you want this routine to build something, put it on a roadmap.** Add
