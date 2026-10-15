@@ -17,33 +17,28 @@ Process:
 - If something's ambiguous, leave a comment explaining what's unclear
   rather than guessing.
 
-## Unblocked — 14 Oct 2026: the roadmap reads fine, and nothing is queued
+## Idle — 16 Oct 2026: roadmap reads fine, third night with nothing queued
 
-`NIGHT_RUN_TOKEN` **is** set in Render now, so the 13 Oct blocker (which used
-to fill this section) is closed. Checked on this run:
+`NIGHT_RUN_TOKEN` is live on Render, so the roadmap has been readable since the
+14 Oct run. It is also still empty, and that is now the only reason this
+routine ships nothing. Checked on this run (16 Oct, 05:14 Sydney):
 
 - `GET /api/nightrun/queue` → **200** `{"projects_seen":4,"items":[]}`, and
   `?project=ambient` the same. That is the service-key read going through, so
-  the roadmap was genuinely *readable* this run — and it genuinely has **no
-  item that isn't `done`** across all 4 projects. Nothing was built
-  this run because there was nothing to build, not because the roadmap was
-  blind.
-- `GET /api/nightrun/report` → 200, and `POST` → 200 (this run's `jarvis`
-  section stored, `run_date` 2026-10-15), so the Night Run hub works end to
-  end: jobs can report, and Daily Status → Night run and the Kindle card have
-  data. To be exact about *whose* data: the night that has all four sections
-  (`rade`, `runehaven`, `leadlens`, `morning`) is `run_date` **2026-10-14**,
-  the previous one. This run posted at 05:17 Sydney on the 15th and was the
-  first report in for 2026-10-15 — rade (~4:30am) and runehaven (~5am) were
-  not in yet, which at that hour is "not yet", not "didn't report". The
-  5:52am morning check is the one that decides that.
+  the roadmap was genuinely *readable*, and across all 4 projects there is no
+  item whose status isn't `done`. (`openRoadmapItems` returns anything not
+  `done`, so an empty list can't be a status-spelling artefact.)
+- The direct Supabase REST read is still the wrong tool, as designed: with the
+  anon key, `aio_projects` answers `200 []` under RLS and `aio_roadmap_items`
+  404s (the roadmap is a JSON column on `aio_projects`, not its own table).
+  **A `[]` from direct REST means nothing — only the queue endpoint counts.**
 - `/login` → 200, `npm run build` succeeded, `npm test` 25/25.
+- Nothing was built, nothing invented. No ambiguous roadmap item to flag,
+  because there is no roadmap item at all.
 
 **If you want this routine to build something, put it on a roadmap.** Add
 items to the Ambient Intelligence project's roadmap in the app (status
-`planned`), or add a line under "Queued" below. An empty queue means an idle
-routine — which is the right outcome tonight, but it is the only reason
-nothing shipped.
+`planned`), or add a line under "Queued" below.
 
 ## Roadmap access — fixed 12 Oct 2026 (Night Run)
 
@@ -85,12 +80,12 @@ feel like tidying.
 
 Nothing queued *in this file*. (PWA support, the branded icon/favicon, loading
 skeletons and command bar → Studyboy generation were built and pushed on 21 Sep
-2026.) The Supabase roadmap was read successfully on 14 Oct and is also empty
+2026.) The Supabase roadmap was read successfully on 16 Oct and is also empty
 of open items — see the top section.
 
 ## Built — waiting on you to run the SQL
 
-**Checked on the 13 Oct 2026 run, and re-checked on 14 Oct — still true:**
+**Checked on the 13 Oct 2026 run, and re-checked on 14 and 16 Oct — still true:**
 `aio_studyboy_attempts`, `aio_notification_log`, `aio_study_resources` and
 `aio_night_runs` all answer **200** from the REST API now, where on 11 Oct
 they all 404'd as missing from the schema cache (`PGRST205`). So 001, 002,
@@ -103,7 +98,7 @@ One left, and it is the optional one:
 - **Studyboy doc numbers (optional)** →
   `pending-sql/004_aio_studyboy_doc_numbers.sql`. Still unrun —
   `aio_studyboy_docs.doc_number` does not exist (`42703`), confirmed again on
-  the 14 Oct run. Gives each Studyboy doc a stable `doc_number`, so "open doc 3" means
+  the 16 Oct run. Gives each Studyboy doc a stable `doc_number`, so "open doc 3" means
   the same doc even after an earlier one is deleted. Genuinely optional: the
   Kindle command route already numbers docs in upload order and works
   without it. Run it only if you want the numbers to stay put.
