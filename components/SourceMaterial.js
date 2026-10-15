@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import DrivePicker from '@/components/DrivePicker';
+import { authedFetch } from '@/lib/authedFetch';
 
 const TEXT_TYPES = ['text/plain', 'text/markdown', 'text/csv', 'application/json'];
 
@@ -59,6 +60,13 @@ export default function SourceMaterial({ subject, setSubject, sourceText, setSou
       return;
     }
 
+    // Word and PowerPoint files are unzipped and read on the server.
+    const isOffice = /\.(docx|pptx)$/i.test(file.name);
+    if (/\.(doc|ppt)$/i.test(file.name)) {
+      setError('Old .doc/.ppt files can\'t be read. Save as .docx/.pptx (or export a PDF) and try again.');
+      return;
+    }
+
     if (file.size > 10 * 1024 * 1024) {
       setError('That file is over 10MB — try a smaller one or split it up.');
       return;
@@ -67,11 +75,17 @@ export default function SourceMaterial({ subject, setSubject, sourceText, setSou
     setExtracting(true);
     try {
       const base64 = await fileToBase64(file);
-      const res = await fetch('/api/studyboy/extract', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ base64, mediaType: file.type }),
-      });
+      const res = isOffice
+        ? await authedFetch('/api/studyboy/extract-document', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ base64, fileName: file.name }),
+          })
+        : await fetch('/api/studyboy/extract', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ base64, mediaType: file.type }),
+          });
       const data = await res.json();
       if (!res.ok) setError(data.error || 'Could not read that file.');
       else setSourceText((prev) => (prev ? prev + '\n\n' + data.text : data.text));
@@ -112,8 +126,8 @@ export default function SourceMaterial({ subject, setSubject, sourceText, setSou
     <div className="rounded border border-border bg-surface p-4">
       <h2 className="mb-3 text-sm font-medium text-ink">Source material</h2>
       <p className="mb-3 text-xs text-muted">
-        Pull a file straight from Drive, upload a PDF or past paper, photograph handwritten work,
-        or just paste. Everything Studyboy makes is built from this — not generic knowledge.
+        Pull a file straight from Drive, upload a PDF, Word or PowerPoint file, photograph handwritten
+        work, or just paste. Everything Studyboy makes is built from this — not generic knowledge.
       </p>
 
       <div className="mb-3 flex flex-wrap gap-2">
@@ -127,7 +141,7 @@ export default function SourceMaterial({ subject, setSubject, sourceText, setSou
         <input
           ref={fileRef}
           type="file"
-          accept=".txt,.md,.csv,.json,.pdf,image/*"
+          accept=".txt,.md,.csv,.json,.pdf,.docx,.pptx,image/*"
           onChange={(e) => handleFile(e, 'device_upload')}
           className="hidden"
         />

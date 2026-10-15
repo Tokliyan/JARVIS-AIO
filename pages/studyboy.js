@@ -6,10 +6,13 @@ import Generator from '@/components/Generator';
 import StudyboyHistory from '@/components/StudyboyHistory';
 import StudyResources from '@/components/StudyResources';
 import WeakTopics from '@/components/WeakTopics';
+import SmartStudy from '@/components/SmartStudy';
+import ReviewDeck from '@/components/ReviewDeck';
+import ProgressBoard from '@/components/ProgressBoard';
 import NotificationLog from '@/components/NotificationLog';
 import { SUBJECTS } from '@/lib/subjects';
 
-const TABS = ['Create', 'History', 'Notifications'];
+const TABS = ['Create', 'Smart Study', 'Review', 'Progress', 'History', 'Notifications'];
 
 export default function StudyboyPage() {
   const router = useRouter();
@@ -119,6 +122,28 @@ export default function StudyboyPage() {
             initialOutput={reopened}
             onSaved={() => historyRef.current?.reload()}
             onAttemptsRecorded={() => setAttemptsKey((n) => n + 1)}
+          />
+        </div>
+      ) : tab === 'Smart Study' ? (
+        <div className="animate-row-in">
+          <SmartStudy
+            key={subject}
+            subject={subject}
+            sourceText={sourceText}
+            onGoCreate={() => setTab('Create')}
+            onAttemptsRecorded={() => setAttemptsKey((n) => n + 1)}
+          />
+        </div>
+      ) : tab === 'Review' ? (
+        <div className="animate-row-in">
+          <ReviewDeck subject={subject} onAttemptsRecorded={() => setAttemptsKey((n) => n + 1)} />
+        </div>
+      ) : tab === 'Progress' ? (
+        <div className="animate-row-in">
+          <ProgressBoard
+            subject={subject}
+            refreshKey={attemptsKey}
+            onStudyWeak={() => setTab('Smart Study')}
           />
         </div>
       ) : tab === 'History' ? (

@@ -67,6 +67,15 @@ SQL Editor, then delete the file. Anything waiting on one of these degrades
 quietly in the app (the feature stays hidden or unlogged) rather than erroring,
 so there's no rush, but nothing new works until it's run.
 
+### Studyboy tabs
+
+- **Create**: source material (paste, text, PDF, Word, PowerPoint, photo, Drive), then past paper, study guide, flashcards, quiz, timed practice test or study plan.
+- **Smart Study**: adaptive one-question-at-a-time session. Wrong first answer gets a guiding question, not the answer. Difficulty follows the session, weak topics get extra questions, nothing repeats.
+- **Review**: spaced-repetition deck (Again / Hard / Good / Easy). Flashcards and missed Smart Study questions land here. Needs `pending-sql/006`.
+- **Progress**: mastered / improving / needs-work per topic, plus every question answered. Needs `001`; question text needs `006`.
+
+The Smart Study and Word/PowerPoint routes check the signed-in session token (`lib/requireUser.js`); the browser sends it via `lib/authedFetch.js`.
+
 ## Deploying to Render
 
 1. Push this repo to GitHub.

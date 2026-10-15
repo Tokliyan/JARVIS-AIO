@@ -7,6 +7,7 @@ const MODE_LABEL = {
   study_guide: 'Guide',
   flashcards: 'Cards',
   quiz: 'Quiz',
+  practice_test: 'Test',
   study_plan: 'Plan',
 };
 
@@ -15,6 +16,7 @@ const MODE_TONE = {
   study_guide: 'bg-[#E9F3EC] text-[#2F6F4E]',
   flashcards: 'bg-[#F3ECFB] text-[#6B44A8]',
   quiz: 'bg-[#FDF0E4] text-[#B4761F]',
+  practice_test: 'bg-[#FBEAEA] text-[#A83B3B]',
   study_plan: 'bg-[#EEF6E4] text-[#4F7A20]',
 };
 
