@@ -1,8 +1,10 @@
--- JARVIS AIO — Studyboy review deck (spaced repetition) + richer attempt history
+-- JARVIS AIO — Studyboy review deck (spaced repetition), richer attempt
+-- history, and editable notes
 --
 -- RUN THIS BY HAND in Supabase → SQL Editor (Rade.XT project).
 -- Safe to run twice. Until it has run:
 --   • the Review tab says it needs this file,
+--   • renaming or editing a saved note says it needs this file,
 --   • Smart Study and practice tests still work and still update topic accuracy,
 --     but individual questions aren't kept in the history.
 -- Nothing else breaks.
@@ -17,7 +19,7 @@ create table if not exists public.aio_studyboy_cards (
   front            text not null,
   back             text not null,
   source           text not null default 'flashcards'
-                   check (source in ('flashcards', 'smart_study', 'manual')),
+                   check (source in ('flashcards', 'smart_study', 'study_guide', 'manual')),
   ease             real not null default 2.5,
   interval_days    integer not null default 0,
   reps             integer not null default 0,
@@ -26,6 +28,13 @@ create table if not exists public.aio_studyboy_cards (
   last_reviewed_at timestamptz,
   created_at       timestamptz not null default now()
 );
+
+-- Older copies of this file didn't allow study-guide cards; bring them up to date.
+alter table public.aio_studyboy_cards
+  drop constraint if exists aio_studyboy_cards_source_check;
+alter table public.aio_studyboy_cards
+  add constraint aio_studyboy_cards_source_check
+  check (source in ('flashcards', 'smart_study', 'study_guide', 'manual'));
 
 -- One card per question per subject: adding the same flashcards twice is a no-op.
 create unique index if not exists aio_studyboy_cards_unique_front
@@ -74,5 +83,23 @@ begin
       check (mode in ('quiz', 'flashcards', 'smart_study', 'practice_test'));
   else
     raise notice 'aio_studyboy_attempts not found: run 001_aio_studyboy_attempts.sql first, then run this file again.';
+  end if;
+end $$;
+
+-- 3. Editable notes --------------------------------------------------------
+-- The Notes tab lets you rename a saved note and fix its text. That needs an
+-- update policy on aio_studyboy_docs scoped to the owner.
+
+do $$
+begin
+  if exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public' and table_name = 'aio_studyboy_docs' and column_name = 'user_id'
+  ) then
+    drop policy if exists "own docs update" on public.aio_studyboy_docs;
+    create policy "own docs update" on public.aio_studyboy_docs
+      for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
+  else
+    raise notice 'aio_studyboy_docs has no user_id column: notes stay read-only.';
   end if;
 end $$;

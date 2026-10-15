@@ -1,5 +1,5 @@
 // Test-only module hooks: resolve the app's "@/..." alias and let tests swap
-// out the Supabase admin client.
+// out the Supabase clients.
 import { pathToFileURL } from 'node:url';
 import path from 'node:path';
 import fs from 'node:fs';
@@ -14,6 +14,9 @@ export async function resolve(specifier, context, nextResolve) {
     }
     if (specifier === '@/lib/supabaseAdmin') {
       return { url: pathToFileURL(path.join(root, 'tests/fakeSupabaseAdmin.mjs')).href, shortCircuit: true };
+    }
+    if (specifier === '@/lib/supabaseClient') {
+      return { url: pathToFileURL(path.join(root, 'tests/fakeSupabaseClient.mjs')).href, shortCircuit: true };
     }
     return { url: pathToFileURL(p).href, shortCircuit: true };
   }

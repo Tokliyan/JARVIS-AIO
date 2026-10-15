@@ -3,10 +3,11 @@ import { supabase } from '@/lib/supabaseClient';
 import Flashcards from '@/components/Flashcards';
 import Quiz from '@/components/Quiz';
 import PracticeTest from '@/components/PracticeTest';
+import StudyGuide from '@/components/StudyGuide';
+import Markdown from '@/components/Markdown';
 
 const MODES = [
   { id: 'past_paper', label: 'Past paper' },
-  { id: 'study_guide', label: 'Study guide' },
   { id: 'flashcards', label: 'Flashcards' },
   { id: 'quiz', label: 'Quiz' },
   { id: 'practice_test', label: 'Practice test' },
@@ -222,6 +223,8 @@ export default function Generator({ subject, sourceText, onSaved, onAttemptsReco
               minutes={output.minutes}
               onRecorded={onAttemptsRecorded}
             />
+          ) : output.mode === 'study_guide' ? (
+            <StudyGuide output={output} subject={subject} onAttemptsRecorded={onAttemptsRecorded} />
           ) : output.mode === 'study_plan' ? (
             <>
               <div className="mb-3 flex items-center justify-between">
@@ -257,9 +260,9 @@ export default function Generator({ subject, sourceText, onSaved, onAttemptsReco
                   Copy
                 </button>
               </div>
-              <pre className="max-h-[32rem] overflow-auto whitespace-pre-wrap rounded border border-border bg-bg p-3 font-mono text-xs leading-relaxed text-ink">
-                {output.text}
-              </pre>
+              <div className="max-h-[40rem] overflow-auto rounded border border-border bg-bg p-4">
+                <Markdown text={output.text} />
+              </div>
             </>
           )}
         </div>
