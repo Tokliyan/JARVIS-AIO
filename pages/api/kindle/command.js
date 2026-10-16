@@ -175,6 +175,8 @@ async function generate(db, intent, today) {
     notes: intent.notes || '',
     assessmentDate: intent.assessment_date,
     today: today.iso,
+    // The Kindle waits on this reply, so its guides are the one-sitting kind.
+    depth: 'concise',
     maxTokens: 6144,
   });
   if (status !== 200) throw new Error(body.error || "Couldn't build that.");

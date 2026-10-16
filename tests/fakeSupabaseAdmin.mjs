@@ -71,6 +71,16 @@ class Query {
   }
 }
 
+export const GOOD_TOKEN = 'good-session-token';
+
 export function supabaseAdmin() {
-  return { from: (table) => new Query(table) };
+  return {
+    from: (table) => new Query(table),
+    auth: {
+      async getUser(token) {
+        if (token === GOOD_TOKEN) return { data: { user: { id: 'user-1' } }, error: null };
+        return { data: { user: null }, error: { message: 'invalid JWT' } };
+      },
+    },
+  };
 }

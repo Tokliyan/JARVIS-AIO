@@ -2,12 +2,15 @@ import { useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import Flashcards from '@/components/Flashcards';
 import Quiz from '@/components/Quiz';
+import PracticeTest from '@/components/PracticeTest';
+import StudyGuide from '@/components/StudyGuide';
+import Markdown from '@/components/Markdown';
 
 const MODES = [
   { id: 'past_paper', label: 'Past paper' },
-  { id: 'study_guide', label: 'Study guide' },
   { id: 'flashcards', label: 'Flashcards' },
   { id: 'quiz', label: 'Quiz' },
+  { id: 'practice_test', label: 'Practice test' },
   { id: 'study_plan', label: 'Study plan' },
 ];
 
@@ -17,6 +20,8 @@ export default function Generator({ subject, sourceText, onSaved, onAttemptsReco
   const [assessmentDate, setAssessmentDate] = useState('');
   const [difficulty, setDifficulty] = useState('match');
   const [strictness, setStrictness] = useState('strict');
+  const [count, setCount] = useState(15);
+  const [minutes, setMinutes] = useState('');
   const [busy, setBusy] = useState(false);
   const [output, setOutput] = useState(initialOutput || null);
   const [error, setError] = useState(null);
@@ -40,6 +45,8 @@ export default function Generator({ subject, sourceText, onSaved, onAttemptsReco
           assessmentDate,
           difficulty,
           strictness,
+          count,
+          minutes: minutes ? Number(minutes) : undefined,
           today: new Date().toISOString().slice(0, 10),
         }),
       });
@@ -132,6 +139,37 @@ export default function Generator({ subject, sourceText, onSaved, onAttemptsReco
           </label>
         )}
 
+        {mode === 'practice_test' && (
+          <>
+            <label className="flex items-center gap-2 text-xs text-muted">
+              Questions
+              <select
+                value={count}
+                onChange={(e) => setCount(Number(e.target.value))}
+                className="rounded border border-border bg-bg px-2 py-1.5 text-sm text-ink"
+              >
+                {[10, 15, 20, 30, 40].map((n) => (
+                  <option key={n} value={n}>
+                    {n}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="flex items-center gap-2 text-xs text-muted">
+              Minutes
+              <input
+                type="number"
+                min="1"
+                max="240"
+                value={minutes}
+                onChange={(e) => setMinutes(e.target.value)}
+                placeholder={String(Math.round(count * 1.5))}
+                className="w-16 rounded border border-border bg-bg px-2 py-1.5 text-sm text-ink placeholder:text-muted"
+              />
+            </label>
+          </>
+        )}
+
         <label className="flex items-center gap-2 text-xs text-muted">
           <input
             type="checkbox"
@@ -178,6 +216,15 @@ export default function Generator({ subject, sourceText, onSaved, onAttemptsReco
               subject={subject}
               onRecorded={onAttemptsRecorded}
             />
+          ) : output.mode === 'practice_test' ? (
+            <PracticeTest
+              questions={output.questions || []}
+              subject={subject}
+              minutes={output.minutes}
+              onRecorded={onAttemptsRecorded}
+            />
+          ) : output.mode === 'study_guide' ? (
+            <StudyGuide output={output} subject={subject} onAttemptsRecorded={onAttemptsRecorded} />
           ) : output.mode === 'study_plan' ? (
             <>
               <div className="mb-3 flex items-center justify-between">
@@ -213,9 +260,9 @@ export default function Generator({ subject, sourceText, onSaved, onAttemptsReco
                   Copy
                 </button>
               </div>
-              <pre className="max-h-[32rem] overflow-auto whitespace-pre-wrap rounded border border-border bg-bg p-3 font-mono text-xs leading-relaxed text-ink">
-                {output.text}
-              </pre>
+              <div className="max-h-[40rem] overflow-auto rounded border border-border bg-bg p-4">
+                <Markdown text={output.text} />
+              </div>
             </>
           )}
         </div>

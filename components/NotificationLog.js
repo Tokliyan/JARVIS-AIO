@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { Skeleton, SkeletonBlock } from '@/components/Skeleton';
+import { isStudyNotification } from '@/lib/comingUp';
 
 export const NOTIFICATION_LOG_TABLE = 'aio_notification_log';
 
@@ -17,8 +18,8 @@ function when(iso) {
     : d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' });
 }
 
-export default function NotificationLog() {
-  const [rows, setRows] = useState([]);
+export default function NotificationLog({ studyOnly = false }) {
+  const [allRows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [available, setAvailable] = useState(true);
   const [expanded, setExpanded] = useState(null);
@@ -47,6 +48,9 @@ export default function NotificationLog() {
     load();
   }
 
+  const rows = studyOnly ? allRows.filter(isStudyNotification) : allRows;
+  const hidden = allRows.length - rows.length;
+
   if (loading) {
     return (
       <SkeletonBlock label="Loading processed notifications">
@@ -69,8 +73,15 @@ export default function NotificationLog() {
     return (
       <p className="text-sm text-muted">
         Not logging yet — <code className="font-mono text-xs">pending-sql/002_aio_notification_log.sql</code>{' '}
-        still needs running in Supabase. Notifications are still being processed
-        normally in the meantime.
+        still needs running in Supabase. Notifications are still being processed normally in the meantime.
+      </p>
+    );
+  }
+
+  if (rows.length === 0 && hidden > 0) {
+    return (
+      <p className="text-sm text-muted">
+        No study updates. {hidden} other notification{hidden === 1 ? '' : 's'} (not about a subject) hidden.
       </p>
     );
   }
@@ -78,67 +89,68 @@ export default function NotificationLog() {
   if (rows.length === 0) {
     return (
       <p className="text-sm text-muted">
-        Nothing processed yet. Paste or attach a school notification in the
-        command bar and it&apos;ll show up here with what it captured.
+        Nothing processed yet. Paste or attach a school notification in the command bar and it&apos;ll show up
+        here with what it captured.
       </p>
     );
   }
 
   return (
-    <ul className="flex flex-col divide-y divide-border rounded border border-border bg-surface">
-      {rows.map((r, i) => {
-        const open = expanded === r.id;
-        const subjects = Array.isArray(r.subjects) ? r.subjects : [];
-        return (
-          <li
-            key={r.id}
-            onClick={() => setExpanded(open ? null : r.id)}
-            className="group flex animate-row-in cursor-pointer flex-col gap-1 px-3 py-2.5 transition-colors hover:bg-bg"
-            style={{ animationDelay: `${Math.min(i * 25, 250)}ms` }}
-          >
-            <div className="flex items-start gap-3">
-              <div className="min-w-0 flex-1">
-                <div className={open ? 'text-sm text-ink' : 'truncate text-sm text-ink'}>
-                  {r.summary || 'Notification'}
+    <>
+      <ul className="flex flex-col divide-y divide-border rounded border border-border bg-surface">
+        {rows.map((r, i) => {
+          const open = expanded === r.id;
+          const subjects = Array.isArray(r.subjects) ? r.subjects : [];
+          return (
+            <li
+              key={r.id}
+              onClick={() => setExpanded(open ? null : r.id)}
+              className="group flex animate-row-in cursor-pointer flex-col gap-1 px-3 py-2.5 transition-colors hover:bg-bg"
+              style={{ animationDelay: `${Math.min(i * 25, 250)}ms` }}
+            >
+              <div className="flex items-start gap-3">
+                <div className="min-w-0 flex-1">
+                  <div className={open ? 'text-sm text-ink' : 'truncate text-sm text-ink'}>
+                    {r.summary || 'Notification'}
+                  </div>
+                  <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                    {subjects.map((s) => (
+                      <span key={s} className="rounded bg-bg px-1.5 py-0.5 text-[10px] text-muted">
+                        {s}
+                      </span>
+                    ))}
+                    {r.checklist_count > 0 && (
+                      <span className="text-2xs text-faint">
+                        {r.checklist_count} task
+                        {r.checklist_count === 1 ? '' : 's'}
+                      </span>
+                    )}
+                    {r.plan_built && <span className="text-2xs text-accent">{r.plan_steps}-step plan</span>}
+                  </div>
                 </div>
-                <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                  {subjects.map((s) => (
-                    <span
-                      key={s}
-                      className="rounded bg-bg px-1.5 py-0.5 text-[10px] text-muted"
-                    >
-                      {s}
-                    </span>
-                  ))}
-                  {r.checklist_count > 0 && (
-                    <span className="text-2xs text-faint">
-                      {r.checklist_count} task{r.checklist_count === 1 ? '' : 's'}
-                    </span>
-                  )}
-                  {r.plan_built && (
-                    <span className="text-2xs text-accent">
-                      {r.plan_steps}-step plan
-                    </span>
-                  )}
-                </div>
+                <span className="tnum shrink-0 text-2xs text-faint">{when(r.created_at)}</span>
+                <button
+                  onClick={(e) => remove(r.id, e)}
+                  className="shrink-0 text-xs text-faint opacity-0 transition-opacity hover:text-bad group-hover:opacity-100"
+                >
+                  Delete
+                </button>
               </div>
-              <span className="tnum shrink-0 text-2xs text-faint">{when(r.created_at)}</span>
-              <button
-                onClick={(e) => remove(r.id, e)}
-                className="shrink-0 text-xs text-faint opacity-0 transition-opacity hover:text-bad group-hover:opacity-100"
-              >
-                Delete
-              </button>
-            </div>
 
-            {open && r.captured_text && (
-              <pre className="mt-2 max-h-64 overflow-auto whitespace-pre-wrap rounded border border-border bg-bg p-2.5 font-mono text-xs leading-relaxed text-muted">
-                {r.captured_text}
-              </pre>
-            )}
-          </li>
-        );
-      })}
-    </ul>
+              {open && r.captured_text && (
+                <pre className="mt-2 max-h-64 overflow-auto whitespace-pre-wrap rounded border border-border bg-bg p-2.5 font-mono text-xs leading-relaxed text-muted">
+                  {r.captured_text}
+                </pre>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+      {hidden > 0 && (
+        <p className="mt-2 text-2xs text-faint">
+          {hidden} notification{hidden === 1 ? '' : 's'} not about a subject hidden.
+        </p>
+      )}
+    </>
   );
 }

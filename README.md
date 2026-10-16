@@ -67,6 +67,16 @@ SQL Editor, then delete the file. Anything waiting on one of these degrades
 quietly in the app (the feature stays hidden or unlogged) rather than erroring,
 so there's no rush, but nothing new works until it's run.
 
+### Studyboy tabs
+
+- **Home**: what school has coming up (school checklist items and study-related notifications the command bar captured), a "Make a study guide" box (paste or upload notes, the notes are saved to Notes too), and recent guides and notes.
+- **Notes**: every saved note, searchable across subjects. Open one to read, rename or edit it (editing needs `pending-sql/006`), make a study guide or quick revision sheet from it, or practise from it.
+- **Guides**: every study guide. The reader has contents, key terms, formulas, comparison tables, step-by-step worked examples, common mistakes, memory tips, tap-to-reveal checks, a quick-recall self-test, a glossary, studied ticks, copy, download, print/PDF and "add questions to review deck". Guides are generated as JSON (`lib/studyGuide.js`) and also carried as markdown in `text`, so the Kindle and command bar still work.
+- **Practice**: Smart Study, Review (spaced repetition, needs `006`), Progress (needs `001`; question text needs `006`), Quizzes & papers (past paper, flashcards, quiz, timed practice test, study plan) and History. Uses the open note, or every note saved for the subject.
+- **Notifications**: what the command bar captured from school, study updates only by default.
+
+The Smart Study and Word/PowerPoint routes check the signed-in session token (`lib/requireUser.js`); the browser sends it via `lib/authedFetch.js`.
+
 ## Deploying to Render
 
 1. Push this repo to GitHub.

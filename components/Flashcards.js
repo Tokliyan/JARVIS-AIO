@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { recordAttempts } from '@/lib/attempts';
+import { addCards } from '@/lib/cards';
 
 export default function Flashcards({ cards, subject, onRecorded }) {
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [known, setKnown] = useState([]);
+  const [deckMsg, setDeckMsg] = useState('');
 
   if (cards.length === 0) return <p className="text-sm text-muted">No cards generated.</p>;
 
@@ -25,6 +27,15 @@ export default function Flashcards({ cards, subject, onRecorded }) {
   }
 
   const correct = known.filter((k) => k.gotIt).length;
+
+  // Send the whole set to the spaced-repetition deck (see the Review tab).
+  async function addToDeck() {
+    setDeckMsg('Adding…');
+    const res = await addCards(subject, cards, 'flashcards');
+    if (res.ok) setDeckMsg(res.added ? `${res.added} added to your review deck` : 'Already in your review deck');
+    else if (res.unavailable) setDeckMsg('Run pending-sql/006 in Supabase to turn on the review deck');
+    else setDeckMsg(res.error || 'Could not add them');
+  }
 
   return (
     <div>
@@ -67,6 +78,16 @@ export default function Flashcards({ cards, subject, onRecorded }) {
           </button>
         </div>
       )}
+
+      <div className="mt-4 flex items-center gap-3 border-t border-border pt-3">
+        <button
+          onClick={addToDeck}
+          className="rounded border border-border px-3 py-1.5 text-xs text-ink hover:bg-bg"
+        >
+          Add all to review deck
+        </button>
+        {deckMsg && <span className="text-xs text-muted">{deckMsg}</span>}
+      </div>
 
       <div className="mt-3 flex items-center justify-between">
         <button
