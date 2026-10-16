@@ -17,11 +17,11 @@ Process:
 - If something's ambiguous, leave a comment explaining what's unclear
   rather than guessing.
 
-## Idle — 16 Oct 2026: roadmap reads fine, third night with nothing queued
+## Idle — 17 Oct 2026: roadmap reads fine, fourth night with nothing queued
 
 `NIGHT_RUN_TOKEN` is live on Render, so the roadmap has been readable since the
-14 Oct run. It is also still empty, and that is now the only reason this
-routine ships nothing. Checked on this run (16 Oct, 05:14 Sydney):
+14 Oct run. It is also still empty, and that is still the only reason this
+routine ships no feature work. Checked on this run (17 Oct, 05:15 Sydney):
 
 - `GET /api/nightrun/queue` → **200** `{"projects_seen":4,"items":[]}`, and
   `?project=ambient` the same. That is the service-key read going through, so
@@ -32,9 +32,12 @@ routine ships nothing. Checked on this run (16 Oct, 05:14 Sydney):
   anon key, `aio_projects` answers `200 []` under RLS and `aio_roadmap_items`
   404s (the roadmap is a JSON column on `aio_projects`, not its own table).
   **A `[]` from direct REST means nothing — only the queue endpoint counts.**
-- `/login` → 200, `npm run build` succeeded, `npm test` 25/25.
+- `/login` → 200, `npm run build` succeeded, `npm test` 79/79 (the Studyboy
+  work merged in PR #2 brought the suite up from 25).
 - Nothing was built, nothing invented. No ambiguous roadmap item to flag,
   because there is no roadmap item at all.
+- One real change below: `006` has now been run in Supabase, so the
+  pending-SQL list is down to the optional `004`.
 
 **If you want this routine to build something, put it on a roadmap.** Add
 items to the Ambient Intelligence project's roadmap in the app (status
@@ -80,25 +83,33 @@ feel like tidying.
 
 Nothing queued *in this file*. (PWA support, the branded icon/favicon, loading
 skeletons and command bar → Studyboy generation were built and pushed on 21 Sep
-2026.) The Supabase roadmap was read successfully on 16 Oct and is also empty
+2026.) The Supabase roadmap was read successfully on 17 Oct and is also empty
 of open items — see the top section.
 
 ## Built — waiting on you to run the SQL
 
-**Checked on the 13 Oct 2026 run, and re-checked on 14 and 16 Oct — still true:**
-`aio_studyboy_attempts`, `aio_notification_log`, `aio_study_resources` and
-`aio_night_runs` all answer **200** from the REST API now, where on 11 Oct
+**Checked on the 13 Oct 2026 run, and re-checked on 14, 16 and 17 Oct — still
+true:** `aio_studyboy_attempts`, `aio_notification_log`, `aio_study_resources`
+and `aio_night_runs` all answer **200** from the REST API now, where on 11 Oct
 they all 404'd as missing from the schema cache (`PGRST205`). So 001, 002,
 003 and 005 have been run — their features (Weak topics, the Notifications
 log, Resources per subject, and Night Run report storage) are live, and
 those four lines are deleted from this list accordingly.
+
+**New on the 17 Oct run: 006 has been run too.**
+`pending-sql/006_aio_studyboy_review.sql` arrived with the Studyboy work in
+PR #2 and never made it onto this list. It has since been applied:
+`aio_studyboy_cards` answers `200 []`, and all four columns it adds to
+`aio_studyboy_attempts` (`question`, `user_answer`, `kind`, `hint_used`)
+read back `200`. So the Review tab's spaced-repetition deck, per-question
+attempt history and note renaming are all live — nothing to do for it.
 
 One left, and it is the optional one:
 
 - **Studyboy doc numbers (optional)** →
   `pending-sql/004_aio_studyboy_doc_numbers.sql`. Still unrun —
   `aio_studyboy_docs.doc_number` does not exist (`42703`), confirmed again on
-  the 16 Oct run. Gives each Studyboy doc a stable `doc_number`, so "open doc 3" means
+  the 17 Oct run. Gives each Studyboy doc a stable `doc_number`, so "open doc 3" means
   the same doc even after an earlier one is deleted. Genuinely optional: the
   Kindle command route already numbers docs in upload order and works
   without it. Run it only if you want the numbers to stay put.
