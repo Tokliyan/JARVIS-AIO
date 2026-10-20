@@ -17,19 +17,22 @@ Process:
 - If something's ambiguous, leave a comment explaining what's unclear
   rather than guessing.
 
-## Idle — 20 Oct 2026: roadmap reads fine, seventh night with nothing queued
+## Idle — 21 Oct 2026: roadmap reads fine, eighth night with nothing queued
 
-Same shape as the last six nights: the roadmap is readable and empty, and that
-is the only reason this routine ships no feature work. Checked on this run
-(20 Oct, 05:03 Sydney):
+Same shape as the last seven nights: the roadmap is readable and empty, and
+that is the only reason this routine ships no feature work. Checked on this
+run (21 Oct, 05:05 Sydney):
 
 - `GET /api/nightrun/queue` → **200** `{"projects_seen":4,"items":[]}`, and
-  `?project=ambient` identical. The service-key read went through, so the
-  roadmap was genuinely *readable*, and across all 4 projects there is no item
-  whose status isn't `done`. (`openRoadmapItems` returns anything not `done`,
-  so an empty list can't be a status-spelling artefact.)
+  `?project=ambient` identical. `projects_seen:4` is the proof the service-key
+  read actually returned rows, so the roadmap was genuinely *readable*, and
+  across all 4 projects there is no item whose status isn't `done`.
+  (`openRoadmapItems` returns anything not `done`, so an empty list can't be a
+  status-spelling artefact.)
 - The direct Supabase REST read was tried first this run and behaved exactly as
-  designed-against: `aio_projects` → `200 []` with the anon key under RLS.
+  designed-against: `aio_projects` → `200 []` with the anon key under RLS, and
+  `aio_roadmap_items` → `404 PGRST205` (no such table — the roadmap lives in
+  `aio_projects.roadmap`, not its own table).
   **That `[]` carries no information — only the queue endpoint counts.** Kept
   doing both so the contrast stays on the record.
 - `/login` → 200, `npm run build` succeeded, `npm test` 79/79.
@@ -37,7 +40,8 @@ is the only reason this routine ships no feature work. Checked on this run
   because there is no roadmap item at all.
 - Pending SQL unchanged: only the optional `004` is left
   (`aio_studyboy_docs.doc_number` still `42703`, re-confirmed this run).
-- `main` was at `1c0c372` before this run, matching `git ls-remote` exactly —
+  001/002/003/005/006 all still answer 200.
+- `main` was at `5baf84a` before this run, matching `git ls-remote` exactly —
   no stranded work, and no stale-ref confusion this time.
 
 **If you want this routine to build something, put it on a roadmap.** Add
@@ -84,13 +88,13 @@ feel like tidying.
 
 Nothing queued *in this file*. (PWA support, the branded icon/favicon, loading
 skeletons and command bar → Studyboy generation were built and pushed on 21 Sep
-2026.) The Supabase roadmap was read successfully on 20 Oct and is also empty
+2026.) The Supabase roadmap was read successfully on 21 Oct and is also empty
 of open items — see the top section.
 
 ## Built — waiting on you to run the SQL
 
-**Checked on the 13 Oct 2026 run, and re-checked on 14, 16, 17, 18, 19 and 20
-Oct — still true:** `aio_studyboy_attempts`, `aio_notification_log`, `aio_study_resources`
+**Checked on the 13 Oct 2026 run, and re-checked on 14, 16, 17, 18, 19, 20 and
+21 Oct — still true:** `aio_studyboy_attempts`, `aio_notification_log`, `aio_study_resources`
 and `aio_night_runs` all answer **200** from the REST API now, where on 11 Oct
 they all 404'd as missing from the schema cache (`PGRST205`). So 001, 002,
 003 and 005 have been run — their features (Weak topics, the Notifications
@@ -110,7 +114,7 @@ One left, and it is the optional one:
 - **Studyboy doc numbers (optional)** →
   `pending-sql/004_aio_studyboy_doc_numbers.sql`. Still unrun —
   `aio_studyboy_docs.doc_number` does not exist (`42703`), confirmed again on
-  the 20 Oct run. Gives each Studyboy doc a stable `doc_number`, so "open doc 3" means
+  the 21 Oct run. Gives each Studyboy doc a stable `doc_number`, so "open doc 3" means
   the same doc even after an earlier one is deleted. Genuinely optional: the
   Kindle command route already numbers docs in upload order and works
   without it. Run it only if you want the numbers to stay put.
