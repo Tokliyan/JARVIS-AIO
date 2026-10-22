@@ -1,0 +1,20 @@
+{
+  "id": "2026-10-23",
+  "topic": "Missed call story",
+  "caption": "Every missed call is a customer who just called the next name on Google. If your phone could text them back before the second ring, how many of those jobs would you keep?",
+  "hashtags": ["#smallbusinessau", "#tradie", "#sydneybusiness", "#automation", "#missedcalls"],
+  "carousel": {"slides": [
+    {"headline": "You lost a job this week and didn't even know it", "accent": "didn't even know it"},
+    {"headline": "Someone called. You were busy.", "accent": "busy", "body": "Under a car. On a roof. With a client. It rang out."},
+    {"headline": "They called the next name on Google.", "accent": "next name", "body": "That job is gone. You never saw it leave."},
+    {"headline": "What if your phone texted back first?", "accent": "texted back", "body": "Before the second ring. Every time. Without you touching it."},
+    {"headline": "Same customer. Different ending.", "accent": "Different ending", "body": "They get a reply, you get the job, and you never put the tools down."}
+  ]},
+  "reel": {"beats": [
+    {"text": "You lost a job this week and didn't even know it", "accent": "didn't even know it"},
+    {"text": "Someone called. You were under a car, on a roof, with a client. It rang out."},
+    {"text": "They called the next name on Google. That job is gone.", "accent": "That job is gone."},
+    {"text": "What if your phone texted them back before the second ring?", "accent": "texted them back"},
+    {"text": "Sent automatically. Every time.", "bubble": "Hey, sorry we missed your call. What's the job?", "accent": "Every time."}
+  ]}
+}
