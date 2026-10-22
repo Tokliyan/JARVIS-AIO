@@ -17,20 +17,19 @@ Process:
 - If something's ambiguous, leave a comment explaining what's unclear
   rather than guessing.
 
-## Idle — 22 Oct 2026: roadmap reads fine, ninth night with nothing queued
+## Idle — 23 Oct 2026: roadmap reads fine, tenth night with nothing queued
 
-Same shape as the last eight nights: the roadmap is readable and empty, and
+Same shape as the last nine nights: the roadmap is readable and empty, and
 that is the only reason this routine ships no feature work. Checked on this
-run (22 Oct, 05:05 Sydney):
+run (23 Oct, 05:06 Sydney):
 
 - `GET /api/nightrun/queue` → **200** `{"projects_seen":4,"items":[]}`, and
   `?project=ambient` identical. `projects_seen:4` is the proof the service-key
   read actually returned rows, so the roadmap was genuinely *readable*, and
   across all 4 projects there is no item whose status isn't `done`.
   (`openRoadmapItems` returns anything not `done`, so an empty list can't be a
-  status-spelling artefact.) The first call of the run returned curl exit
-  `000` on a 60s timeout — Render cold start, not an error from the app: the
-  very next call answered 200, and so did two more.
+  status-spelling artefact.) Three consecutive calls, all 200 — no cold-start
+  timeout this run.
 - The direct Supabase REST read was tried first this run, as the routine's
   prompt asks, and behaved exactly as designed-against: `aio_projects` →
   `200 []` with the anon key under RLS, and `aio_roadmap_items` → `404
@@ -43,10 +42,14 @@ run (22 Oct, 05:05 Sydney):
 - Pending SQL unchanged: only the optional `004` is left
   (`aio_studyboy_docs.doc_number` still `42703`, re-confirmed this run).
   001/002/003/005/006 all still answer 200.
-- `main` was at `e2f4cb2` before this run, matching `git ls-remote` exactly —
-  no stranded work. This run's own branch is `claude/ecstatic-goldberg-v9hnr5`
-  (the `kind-archimedes-*` series stopped); `git fetch` confirms it did not
-  exist on the remote before this push.
+- `npm ci` was needed before the build this run — this container cloned
+  without `node_modules`, so the first `npm run build` failed with
+  `sh: 1: next: not found`. Not a repo problem: install then build, and it
+  passed. Worth knowing if a future run sees that line.
+- The stale-`origin/main` trap caught this run too, and `git fetch` cleared
+  it: the fresh clone's `origin/main` read `e2f4cb2` while the real `main`
+  was one commit further on at `cea8004` (the LeadLens content routine push).
+  No stranded work. This run's own branch is `claude/ecstatic-goldberg-ckev9n`.
 
 **If you want this routine to build something, put it on a roadmap.** Add
 items to the Ambient Intelligence project's roadmap in the app (status
@@ -92,13 +95,13 @@ feel like tidying.
 
 Nothing queued *in this file*. (PWA support, the branded icon/favicon, loading
 skeletons and command bar → Studyboy generation were built and pushed on 21 Sep
-2026.) The Supabase roadmap was read successfully on 22 Oct and is also empty
+2026.) The Supabase roadmap was read successfully on 23 Oct and is also empty
 of open items — see the top section.
 
 ## Built — waiting on you to run the SQL
 
-**Checked on the 13 Oct 2026 run, and re-checked on 14, 16, 17, 18, 19, 20, 21
-and 22 Oct — still true:** `aio_studyboy_attempts`, `aio_notification_log`, `aio_study_resources`
+**Checked on the 13 Oct 2026 run, and re-checked on 14, 16, 17, 18, 19, 20, 21,
+22 and 23 Oct — still true:** `aio_studyboy_attempts`, `aio_notification_log`, `aio_study_resources`
 and `aio_night_runs` all answer **200** from the REST API now, where on 11 Oct
 they all 404'd as missing from the schema cache (`PGRST205`). So 001, 002,
 003 and 005 have been run — their features (Weak topics, the Notifications
@@ -118,7 +121,7 @@ One left, and it is the optional one:
 - **Studyboy doc numbers (optional)** →
   `pending-sql/004_aio_studyboy_doc_numbers.sql`. Still unrun —
   `aio_studyboy_docs.doc_number` does not exist (`42703`), confirmed again on
-  the 22 Oct run. Gives each Studyboy doc a stable `doc_number`, so "open doc 3" means
+  the 23 Oct run. Gives each Studyboy doc a stable `doc_number`, so "open doc 3" means
   the same doc even after an earlier one is deleted. Genuinely optional: the
   Kindle command route already numbers docs in upload order and works
   without it. Run it only if you want the numbers to stay put.
