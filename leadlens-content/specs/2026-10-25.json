@@ -1,0 +1,20 @@
+{
+  "id": "2026-10-25",
+  "topic": "Slow DMs",
+  "caption": "Most people message two or three businesses and go with whoever replies first. If every DM got an answer in seconds, even while you're on a job, how many more of them would end up as customers?",
+  "hashtags": ["#smallbusinessau", "#sydneybusiness", "#tradie", "#automation", "#instagramdms"],
+  "carousel": {"slides": [
+    {"headline": "You've probably lost a customer in your DMs this week", "accent": "lost a customer"},
+    {"headline": "Someone sent a message. You were busy.", "accent": "busy", "body": "It sat there for hours. Maybe until tomorrow."},
+    {"headline": "They messaged someone else too.", "accent": "someone else", "body": "Whoever replies first usually gets the job."},
+    {"headline": "What if every DM got an answer straight away?", "accent": "answer straight away", "body": "Day or night. Without you picking up your phone."},
+    {"headline": "Same message. Different ending.", "accent": "Different ending", "body": "They get a quick reply, you get the booking, and you stay on the job."}
+  ]},
+  "reel": {"beats": [
+    {"text": "You've probably lost a customer in your DMs this week", "accent": "lost a customer"},
+    {"text": "Someone messaged. You were busy. It sat there for hours."},
+    {"text": "They messaged someone else too. Whoever replies first wins.", "accent": "replies first"},
+    {"text": "What if every DM got an answer straight away?", "accent": "straight away"},
+    {"text": "Replied instantly. Every time.", "bubble": "Hi! Happy to help. What are you after?", "accent": "Every time."}
+  ]}
+}
