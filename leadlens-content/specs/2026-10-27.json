@@ -1,0 +1,20 @@
+{
+  "id": "2026-10-27",
+  "topic": "The 9pm DM",
+  "caption": "The messages that come in after you've knocked off are the ones that go cold fastest. If every one of them got a friendly reply while you were asleep, how many more would still be there in the morning?",
+  "hashtags": ["#smallbusinessau", "#sydneybusiness", "#tradie", "#automation", "#afterhours"],
+  "carousel": {"slides": [
+    {"headline": "9pm. Someone asks your prices.", "accent": "asks your prices"},
+    {"headline": "You've finished for the day.", "accent": "finished", "body": "Dinner's done. Phone's down. The message sits there unanswered."},
+    {"headline": "They're still looking at other businesses.", "accent": "other businesses", "body": "By morning, they've already booked someone who replied."},
+    {"headline": "What if someone answered at night for you?", "accent": "answered at night", "body": "Friendly, on brand, and ready with the basics you'd say yourself."},
+    {"headline": "Same message. Different morning.", "accent": "Different morning", "body": "You wake up to a conversation already started, not a customer already gone."}
+  ]},
+  "reel": {"beats": [
+    {"text": "9pm. Someone asks your prices.", "accent": "asks your prices"},
+    {"text": "You've finished for the day. The message sits there until morning."},
+    {"text": "They ask someone else too. By morning, they've booked.", "accent": "they've booked."},
+    {"text": "What if your business answered at night for you?", "accent": "answered at night"},
+    {"text": "Replied while you slept. Every time.", "bubble": "Hi! Thanks for getting in touch. What can I help you with?", "accent": "Every time."}
+  ]}
+}
