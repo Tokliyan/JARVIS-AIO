@@ -17,11 +17,11 @@ Process:
 - If something's ambiguous, leave a comment explaining what's unclear
   rather than guessing.
 
-## Idle — 27 Oct 2026: roadmap reads fine, fourteenth night with nothing queued
+## Idle — 28 Oct 2026: roadmap reads fine, fifteenth night with nothing queued
 
-Same shape as the last thirteen nights: the roadmap is readable and empty, and
+Same shape as the last fourteen nights: the roadmap is readable and empty, and
 that is the only reason this routine ships no feature work. Checked on this
-run (27 Oct, 05:04 Sydney):
+run (28 Oct, 05:04 Sydney / 27 Oct 18:04 UTC):
 
 - `GET /api/nightrun/queue` → **200** `{"projects_seen":4,"items":[]}`, and
   `?project=ambient` identical. `projects_seen:4` is the proof the service-key
@@ -36,7 +36,7 @@ run (27 Oct, 05:04 Sydney):
   PGRST205` (no such table — the roadmap lives in `aio_projects.roadmap`, not
   its own table). **That `[]` carries no information — only the queue
   endpoint counts.** Kept doing both so the contrast stays on the record.
-- `/login` → 200, `npm run build` succeeded, `npm test` 79/79.
+- `/login` → 200, `npm run build` compiled successfully, `npm test` 79/79.
 - Nothing was built, nothing invented. No ambiguous roadmap item to flag,
   because there is no roadmap item at all.
 - Pending SQL unchanged: only the optional `004` is left
@@ -45,8 +45,9 @@ run (27 Oct, 05:04 Sydney):
 - `npm ci` was needed before the build again this run — this container cloned
   without `node_modules`. Install first, then build; it passed.
 - No stale-`origin/main` trap this run: after `git fetch`, the clone's
-  `origin/main`, the local HEAD and `git ls-remote` all agreed on `8f442b6`.
-  No stranded work. This run's own branch is `claude/ecstatic-goldberg-wm7h6o`.
+  `origin/main` and the local HEAD both read `bde063d`, matching
+  `git ls-remote`. No stranded work. This run's own branch is
+  `claude/ecstatic-goldberg-qi1xv0`.
 
 **If you want this routine to build something, put it on a roadmap.** Add
 items to the Ambient Intelligence project's roadmap in the app (status
@@ -92,13 +93,13 @@ feel like tidying.
 
 Nothing queued *in this file*. (PWA support, the branded icon/favicon, loading
 skeletons and command bar → Studyboy generation were built and pushed on 21 Sep
-2026.) The Supabase roadmap was read successfully on 27 Oct and is also empty
+2026.) The Supabase roadmap was read successfully on 28 Oct and is also empty
 of open items — see the top section.
 
 ## Built — waiting on you to run the SQL
 
 **Checked on the 13 Oct 2026 run, and re-checked on 14, 16, 17, 18, 19, 20, 21,
-22, 23, 24, 25, 26 and 27 Oct — still true:** `aio_studyboy_attempts`, `aio_notification_log`, `aio_study_resources`
+22, 23, 24, 25, 26, 27 and 28 Oct — still true:** `aio_studyboy_attempts`, `aio_notification_log`, `aio_study_resources`
 and `aio_night_runs` all answer **200** from the REST API now, where on 11 Oct
 they all 404'd as missing from the schema cache (`PGRST205`). So 001, 002,
 003 and 005 have been run — their features (Weak topics, the Notifications
@@ -118,7 +119,7 @@ One left, and it is the optional one:
 - **Studyboy doc numbers (optional)** →
   `pending-sql/004_aio_studyboy_doc_numbers.sql`. Still unrun —
   `aio_studyboy_docs.doc_number` does not exist (`42703`), confirmed again on
-  the 27 Oct run. Gives each Studyboy doc a stable `doc_number`, so "open doc 3" means
+  the 28 Oct run. Gives each Studyboy doc a stable `doc_number`, so "open doc 3" means
   the same doc even after an earlier one is deleted. Genuinely optional: the
   Kindle command route already numbers docs in upload order and works
   without it. Run it only if you want the numbers to stay put.
