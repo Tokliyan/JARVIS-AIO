@@ -1,0 +1,21 @@
+{
+  "id": "2026-10-29",
+  "topic": "Manual booking",
+  "caption": "Every time a customer has to wait for you to check your calendar, there's a chance they book someone else. If booking was something customers could just do, while you're on the job or asleep, how much easier would your week be?",
+  "hashtags": ["#smallbusinessau", "#sydneybusiness", "#tradie", "#automation", "#onlinebooking"],
+  "carousel": {"slides": [
+    {"headline": "Your calendar is costing you customers", "accent": "costing you customers"},
+    {"headline": "Someone wants to book a time.", "accent": "book a time", "body": "You're on a job. The message waits until you can check your diary."},
+    {"headline": "Then the back and forth starts.", "accent": "back and forth", "body": "Does Tuesday work? What about Thursday? Hours pass between every reply."},
+    {"headline": "Meanwhile, they're asking someone else.", "accent": "asking someone else", "body": "The business that locks in a time first usually gets the job."},
+    {"headline": "What if booking looked after itself?", "accent": "looked after itself", "body": "Your agent offers free times, confirms one and adds it to your calendar."},
+    {"headline": "Same customer. Different week.", "accent": "Different week", "body": "They're booked in, you're still on the job, and nobody played phone tag."}
+  ]},
+  "reel": {"beats": [
+    {"text": "Your calendar is costing you customers", "accent": "costing you customers"},
+    {"text": "Someone wants to book. You're on a job, so it waits.", "accent": "it waits."},
+    {"text": "Does Tuesday work? What about Thursday? Hours pass.", "accent": "Hours pass."},
+    {"text": "What if booking looked after itself?", "accent": "looked after itself"},
+    {"text": "Time offered, confirmed and in your calendar.", "bubble": "I have Tuesday 10am or Thursday 2pm free. Which suits you?", "accent": "in your calendar."}
+  ]}
+}
