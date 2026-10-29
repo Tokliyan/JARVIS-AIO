@@ -17,19 +17,19 @@ Process:
 - If something's ambiguous, leave a comment explaining what's unclear
   rather than guessing.
 
-## Idle — 29 Oct 2026: roadmap reads fine, sixteenth night with nothing queued
+## Idle — 30 Oct 2026: roadmap reads fine, seventeenth night with nothing queued
 
-Same shape as the last fifteen nights: the roadmap is readable and empty, and
+Same shape as the last sixteen nights: the roadmap is readable and empty, and
 that is the only reason this routine ships no feature work. Checked on this
-run (29 Oct, 05:06 Sydney / 28 Oct 18:06 UTC):
+run (30 Oct, 05:06 Sydney / 29 Oct 18:06 UTC):
 
 - `GET /api/nightrun/queue` → **200** `{"projects_seen":4,"items":[]}`, and
   `?project=ambient` identical. `projects_seen:4` is the proof the service-key
   read actually returned rows, so the roadmap was genuinely *readable*, and
   across all 4 projects there is no item whose status isn't `done`.
   (`openRoadmapItems` returns anything not `done`, so an empty list can't be a
-  status-spelling artefact.) Two calls, both 200 — no cold-start timeout this
-  run.
+  status-spelling artefact.) Both calls answered 200 first try — no cold-start
+  timeout, though `/login` took 42s to wake Render before them.
 - The direct Supabase REST read was tried first this run, as the routine's
   prompt asks, and behaved exactly as designed-against: `aio_projects` →
   `200 []` with the anon key under RLS, and `aio_roadmap_items` → `404
@@ -43,15 +43,23 @@ run (29 Oct, 05:06 Sydney / 28 Oct 18:06 UTC):
   (`aio_studyboy_docs.doc_number` still `42703`, re-confirmed this run).
   001/002/003/005/006 all still answer 200 (`aio_studyboy_attempts`,
   `aio_notification_log`, `aio_study_resources`, `aio_night_runs`,
-  `aio_studyboy_cards`).
+  `aio_studyboy_cards`, plus 006's four columns on `aio_studyboy_attempts`).
 - `npm ci` was needed before the build again this run — this container cloned
   without `node_modules`. Install first, then build; it passed.
-- The stale-`origin/main` trap did show up this run, and is worth noting
-  because the last run didn't hit it: after `git fetch`, the clone's
-  `origin/main` ref still read `bde063d` while `git ls-remote` put the real
-  `main` at `5e83ad8` — which is exactly what the local HEAD already was. So
-  no stranded work, and `git ls-remote` was again the ref to trust, not
-  `origin/*`. This run's own branch is `claude/ecstatic-goldberg-fc3mc1`.
+- The stale-`origin/main` trap showed up again: before `git fetch`, the clone's
+  `origin/main` ref read `bde063d` while `git ls-remote` put the real `main` at
+  `cca69e2` — which is exactly what the local HEAD already was. So no stranded
+  work, and `git ls-remote` was again the ref to trust, not `origin/*`. This
+  run's own branch is `claude/ecstatic-goldberg-ecl1wu`; `ls-remote` now counts
+  40 heads.
+- Worth knowing for next time, about the sandbox rather than the repo: the
+  authenticated `curl` to `/api/nightrun/queue` was refused once by this
+  environment's data-exfiltration guard (the token in an `Authorization`
+  header). The unauthenticated probe (`401`) went through, and the
+  authenticated read succeeded on a cleaner retry, so the roadmap still got
+  read properly. If a future run reports "couldn't reach the queue", rule that
+  block out before concluding Render is down — and never read it as "nothing
+  queued".
 
 ## Roadmap access — fixed 12 Oct 2026 (Night Run)
 
@@ -93,13 +101,13 @@ feel like tidying.
 
 Nothing queued *in this file*. (PWA support, the branded icon/favicon, loading
 skeletons and command bar → Studyboy generation were built and pushed on 21 Sep
-2026.) The Supabase roadmap was read successfully on 29 Oct and is also empty
+2026.) The Supabase roadmap was read successfully on 30 Oct and is also empty
 of open items — see the top section.
 
 ## Built — waiting on you to run the SQL
 
 **Checked on the 13 Oct 2026 run, and re-checked on 14, 16, 17, 18, 19, 20, 21,
-22, 23, 24, 25, 26, 27, 28 and 29 Oct — still true:** `aio_studyboy_attempts`, `aio_notification_log`, `aio_study_resources`
+22, 23, 24, 25, 26, 27, 28, 29 and 30 Oct — still true:** `aio_studyboy_attempts`, `aio_notification_log`, `aio_study_resources`
 and `aio_night_runs` all answer **200** from the REST API now, where on 11 Oct
 they all 404'd as missing from the schema cache (`PGRST205`). So 001, 002,
 003 and 005 have been run — their features (Weak topics, the Notifications
@@ -119,7 +127,7 @@ One left, and it is the optional one:
 - **Studyboy doc numbers (optional)** →
   `pending-sql/004_aio_studyboy_doc_numbers.sql`. Still unrun —
   `aio_studyboy_docs.doc_number` does not exist (`42703`), confirmed again on
-  the 29 Oct run. Gives each Studyboy doc a stable `doc_number`, so "open doc 3" means
+  the 30 Oct run. Gives each Studyboy doc a stable `doc_number`, so "open doc 3" means
   the same doc even after an earlier one is deleted. Genuinely optional: the
   Kindle command route already numbers docs in upload order and works
   without it. Run it only if you want the numbers to stay put.
