@@ -1,0 +1,21 @@
+{
+  "id": "2026-10-31",
+  "topic": "Booking ping-pong",
+  "caption": "Booking one appointment shouldn't take a whole afternoon of messages back and forth. If a customer could pick a time and be booked in with a single reply, how much of your week would you get back?",
+  "hashtags": ["#smallbusinessau", "#sydneybusiness", "#tradie", "#automation", "#appointments"],
+  "carousel": {"slides": [
+    {"headline": "So many messages to book one appointment", "accent": "one appointment"},
+    {"headline": "Does Tuesday work for you?", "accent": "Tuesday", "body": "No, I'm out then. What about Wednesday? Sorry, I only just saw this."},
+    {"headline": "The reply comes hours later.", "accent": "hours later", "body": "You're on a job. They're at work. Everyone's playing phone tag."},
+    {"headline": "Some customers give up before it's booked.", "accent": "give up", "body": "The easiest business to book is often the one that gets the job."},
+    {"headline": "What if it only took one reply?", "accent": "one reply", "body": "Your agent offers free times, they pick one, and it lands in your calendar."},
+    {"headline": "Same booking. Far fewer messages.", "accent": "Far fewer messages", "body": "You skip the back and forth and the customer is sorted straight away."}
+  ]},
+  "reel": {"beats": [
+    {"text": "So many messages to book one appointment", "accent": "one appointment"},
+    {"text": "Does Tuesday work? No. Wednesday? Sorry, only just saw this.", "accent": "Wednesday?"},
+    {"text": "Hours pass between every reply. Some people give up.", "accent": "give up."},
+    {"text": "What if it only took one reply?", "accent": "one reply"},
+    {"text": "Picked a time. Booked. Done.", "bubble": "Thursday 2pm is free. Reply YES and you're booked in.", "accent": "Booked. Done."}
+  ]}
+}
