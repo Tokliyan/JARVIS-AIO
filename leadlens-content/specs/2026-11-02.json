@@ -1,0 +1,21 @@
+{
+  "id": "2026-11-02",
+  "topic": "No-shows",
+  "caption": "A booked slot that sits empty costs you the job and the time you set aside for it. If every customer got a friendly reminder before their appointment, and a quick way to reschedule, how many of those gaps would you get back?",
+  "hashtags": ["#smallbusinessau", "#sydneybusiness", "#tradie", "#automation", "#appointments"],
+  "carousel": {"slides": [
+    {"headline": "They booked. They didn't turn up.", "accent": "didn't turn up"},
+    {"headline": "You kept the time free.", "accent": "kept the time free", "body": "You turned other work away, got ready and waited. Nobody came."},
+    {"headline": "Usually it's not rudeness. They forgot.", "accent": "They forgot", "body": "The booking was made days ago and life got in the way."},
+    {"headline": "Chasing them costs you more time.", "accent": "more time", "body": "Another call, another message, and the gap in your day is still there."},
+    {"headline": "What if they got a reminder first?", "accent": "reminder first", "body": "Your agent messages before the appointment and asks them to confirm."},
+    {"headline": "Same booking. No empty chair.", "accent": "No empty chair", "body": "Confirmed or rescheduled, you know where your day stands."}
+  ]},
+  "reel": {"beats": [
+    {"text": "They booked. They didn't turn up.", "accent": "didn't turn up."},
+    {"text": "You kept the time free and waited. Nobody came.", "accent": "Nobody came."},
+    {"text": "Usually they just forgot. The booking was made days ago.", "accent": "forgot."},
+    {"text": "What if they got a reminder before the appointment?", "accent": "a reminder"},
+    {"text": "Confirmed or rescheduled, sent automatically.", "bubble": "Reminder: you're booked in tomorrow at 2pm. Reply YES to confirm.", "accent": "sent automatically."}
+  ]}
+}
