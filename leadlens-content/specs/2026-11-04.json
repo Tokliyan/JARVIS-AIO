@@ -1,0 +1,21 @@
+{
+  "id": "2026-11-04",
+  "topic": "How it works",
+  "caption": "Comment AGENT and I'll message you back, ask what's eating your week, and point you to the job an agent could take off your plate. No pressure and no big pitch. What's the one task you'd hand over first?",
+  "hashtags": ["#smallbusinessau", "#sydneybusiness", "#tradie", "#automation", "#smallbusinesstips"],
+  "carousel": {"slides": [
+    {"headline": "Comment AGENT. Here's what happens next.", "accent": "what happens next"},
+    {"headline": "You comment one word.", "accent": "one word", "body": "That's the whole first step. No form and no signup page."},
+    {"headline": "I message you back.", "accent": "message you back", "body": "A real person replies and says hello."},
+    {"headline": "I ask what's eating your week.", "accent": "eating your week", "body": "Missed calls, slow replies, booking back and forth. You tell me which one."},
+    {"headline": "We match it to one agent.", "accent": "one agent", "body": "A small assistant that does that one job, so you stop doing it by hand."},
+    {"headline": "You decide if it's worth it.", "accent": "You decide", "body": "No pressure. If it's not a fit, we leave it there."}
+  ]},
+  "reel": {"beats": [
+    {"text": "Comment AGENT. Here's what happens next.", "accent": "what happens next."},
+    {"text": "You comment one word. That's the whole first step.", "accent": "one word."},
+    {"text": "I message you back and ask what's eating your week.", "accent": "eating your week."},
+    {"text": "We match it to one agent that does that one job.", "accent": "one agent"},
+    {"text": "You decide if it's worth it. No pressure.", "bubble": "Hi! Saw your comment. What's taking up most of your week?", "accent": "No pressure."}
+  ]}
+}
