@@ -1,0 +1,21 @@
+{
+  "id": "2026-11-06",
+  "topic": "Reviews",
+  "caption": "Most happy customers never think to leave a review. They'd do it if someone asked at the right moment. If a friendly message went out after every finished job, with a simple link, how many more reviews would you have by now?",
+  "hashtags": ["#smallbusinessau", "#sydneybusiness", "#tradie", "#googlereviews", "#automation"],
+  "carousel": {"slides": [
+    {"headline": "Your happy customers aren't leaving reviews.", "accent": "aren't leaving reviews"},
+    {"headline": "The job went well. They said thanks.", "accent": "said thanks", "body": "Then they got on with their day and never thought about it again."},
+    {"headline": "Did anyone ask them?", "accent": "ask them", "body": "Most people will leave a review if you ask. Very few do it unprompted."},
+    {"headline": "You mean to ask. Then you get busy.", "accent": "get busy", "body": "The next job starts and the moment passes."},
+    {"headline": "What if the ask went out for you?", "accent": "went out for you", "body": "Your agent messages after the job and sends a simple link."},
+    {"headline": "Same good work. Now people see it.", "accent": "people see it", "body": "New customers check reviews before they call. Give them something to read."}
+  ]},
+  "reel": {"beats": [
+    {"text": "Your happy customers aren't leaving reviews.", "accent": "aren't leaving reviews."},
+    {"text": "They said thanks, then got on with their day.", "accent": "got on with their day."},
+    {"text": "Did anyone ask them? Most people only review when asked.", "accent": "Did anyone ask them?"},
+    {"text": "What if the ask went out after every job?", "accent": "the ask went out"},
+    {"text": "A friendly message and a link, sent for you.", "bubble": "Thanks for having us today! Would you mind leaving a quick review? [link]", "accent": "sent for you."}
+  ]}
+}
