@@ -1,0 +1,22 @@
+{
+  "id": "2026-11-08",
+  "topic": "The nine agents",
+  "caption": "These are the nine jobs a Leadlens agent can take off your plate: missed calls, slow DMs, booking, no-shows, review requests, quote follow-ups, common questions, after-hours enquiries and bringing back lapsed customers. You don't need all nine. Which one would you hand over first?",
+  "hashtags": ["#smallbusinessau", "#sydneybusiness", "#tradie", "#automation", "#smallbusinesstips"],
+  "carousel": {"slides": [
+    {"headline": "Nine jobs your phone could be doing.", "accent": "Nine jobs"},
+    {"headline": "Missed calls and slow DMs.", "accent": "Missed calls", "body": "Someone reaches out while you're busy. An agent replies so they don't go elsewhere."},
+    {"headline": "Booking and no-shows.", "accent": "no-shows", "body": "An agent books the time and reminds people, so the day runs to plan."},
+    {"headline": "Review requests and quote follow-ups.", "accent": "quote follow-ups", "body": "After the job, it asks for a review. After a quote, it checks in."},
+    {"headline": "Common questions and after-hours enquiries.", "accent": "after-hours enquiries", "body": "Hours, location, what you offer. Answered at 9pm, not tomorrow."},
+    {"headline": "And bringing back lapsed customers.", "accent": "lapsed customers", "body": "A friendly nudge to people who haven't booked in a while."},
+    {"headline": "You don't need all nine.", "accent": "all nine", "body": "Pick the one eating your week. Start there."}
+  ]},
+  "reel": {"beats": [
+    {"text": "Nine jobs your phone could be doing.", "accent": "Nine jobs"},
+    {"text": "Missed calls. Slow DMs. Booking. No-shows.", "accent": "Missed calls."},
+    {"text": "Review requests. Quote follow-ups. Common questions.", "accent": "Review requests."},
+    {"text": "After-hours enquiries. Bringing back lapsed customers.", "accent": "After-hours enquiries."},
+    {"text": "You don't need all nine. Pick the one eating your week.", "bubble": "Hi! Saw your comment. Which job do you want off your plate first?", "accent": "Pick the one"}
+  ]}
+}
