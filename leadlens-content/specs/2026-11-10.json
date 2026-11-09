@@ -1,0 +1,21 @@
+{
+  "id": "2026-11-10",
+  "topic": "Trust post",
+  "caption": "Before you hand any part of your business to automation, ask these five questions. A good provider will answer every one without dodging. Which one would you want answered first?",
+  "hashtags": ["#smallbusinessau", "#sydneybusiness", "#tradie", "#automation", "#smallbusinesstips"],
+  "carousel": {"slides": [
+    {"headline": "5 questions to ask before buying any automation", "accent": "5 questions"},
+    {"headline": "What exact job does it do?", "accent": "exact job", "body": "If the answer is vague, walk away. One clear job beats ten loose promises."},
+    {"headline": "What does it say to my customers?", "accent": "say to my customers", "body": "You should see the messages before they go out, in your voice."},
+    {"headline": "What happens when it's unsure?", "accent": "it's unsure", "body": "A good agent hands the conversation back to you instead of guessing."},
+    {"headline": "Who is in control?", "accent": "in control", "body": "You should be able to pause it or change it whenever you like."},
+    {"headline": "What does it cost to leave?", "accent": "to leave", "body": "No long lock-in. If it's not working, you should be free to stop."}
+  ]},
+  "reel": {"beats": [
+    {"text": "5 questions to ask before buying any automation", "accent": "5 questions"},
+    {"text": "What exact job does it do? Vague answers are a red flag.", "accent": "exact job"},
+    {"text": "What does it say to my customers? You should see it first.", "accent": "You should see it first."},
+    {"text": "What happens when it's unsure? It should hand back to you.", "accent": "hand back to you."},
+    {"text": "Who's in control, and what does it cost to leave?", "bubble": "Hi! Saw your comment. Which question matters most to you?", "accent": "in control"}
+  ]}
+}
