@@ -17,11 +17,11 @@ Process:
 - If something's ambiguous, leave a comment explaining what's unclear
   rather than guessing.
 
-## Idle — 10 Nov 2026: roadmap reads fine, twenty-eighth night with nothing queued
+## Idle — 11 Nov 2026: roadmap reads fine, twenty-ninth night with nothing queued
 
-Same shape as the last twenty-seven nights: the roadmap is readable and empty,
+Same shape as the last twenty-eight nights: the roadmap is readable and empty,
 and that is the only reason this routine ships no feature work. Checked on this
-run (10 Nov, 05:05 Sydney / 9 Nov 18:05 UTC):
+run (11 Nov, 05:06 Sydney / 10 Nov 18:06 UTC):
 
 - `GET /api/nightrun/queue` → **200** `{"projects_seen":4,"items":[]}`, and
   `?project=ambient` identical. `projects_seen:4` is the proof the service-key
@@ -31,7 +31,7 @@ run (10 Nov, 05:05 Sydney / 9 Nov 18:05 UTC):
   `lib/nightRun.js:99` this run to confirm — so an empty list can't be a
   status-spelling artefact.) The unauthenticated probe returned 401 as it
   should, which is what makes the authenticated 200 mean something; `/login`
-  took 42s to wake Render before them.
+  took 33s to wake Render before them.
 - The direct Supabase REST read was tried first this run, as the routine's
   prompt asks, and behaved exactly as designed-against: `aio_projects` →
   `200 []` with the anon key under RLS, and `aio_roadmap_items` → `404
@@ -51,21 +51,22 @@ run (10 Nov, 05:05 Sydney / 9 Nov 18:05 UTC):
 - `npm ci` was needed before the build again this run — this container cloned
   without `node_modules`. Confirmed `node_modules/.bin/next` existed before
   building, and the build ran clean first try. Worth keeping that habit.
-- **The stale-`origin/main` trap fired again this run**, after skipping one
-  night: the fresh clone's `origin/main` and local `main` both read `dd79a29`
-  while `git ls-remote origin main` — the ref to trust, per the 9/14 Oct
-  lesson — read `6e22825`, which is what `HEAD` read too. So last night's
-  commit was on `main` all along and nothing is stranded; an `origin/main..HEAD`
-  comparison taken before fetching would have looked like a missing run, which
-  is exactly the false alarm the 9 Oct run raised. `git fetch origin main`
-  reconciled it and all three agreed at `6e22825`. `ls-remote` now counts 51
-  heads. This run's own branch is `claude/ecstatic-goldberg-izae2q`.
-- The environment's permission guard refused one of this run's tool calls
-  (as it also did on 8 and 9 Nov): an env-var probe whose shell quoting it
-  could not resolve safely. Rewritten plainly it answered what the run needed —
-  `NIGHT_RUN_TOKEN`, `NEXT_PUBLIC_SUPABASE_URL` and
-  `NEXT_PUBLIC_SUPABASE_ANON_KEY` are set and no service-role key is present,
-  as intended. It did not stop the roadmap from being read.
+- **The stale-`origin/main` trap fired again this run**, two nights running:
+  the fresh clone's `origin/main` and local `main` both read `dd79a29` — two
+  commits behind — while `git ls-remote origin main`, the ref to trust per the
+  9/14 Oct lesson, read `ae1d670`, which is what `HEAD` read too. So the 10 Nov
+  commits were on `main` all along and nothing is stranded; an
+  `origin/main..HEAD` comparison taken before fetching would have looked like
+  two missing runs, which is exactly the false alarm the 9 Oct run raised.
+  `git fetch origin main` reconciled it and all three agreed at `ae1d670`.
+  `ls-remote` now counts 52 heads. This run's own branch is
+  `claude/ecstatic-goldberg-3d4c9r`.
+- No permission-guard refusals this run, unlike 8, 9 and 10 Nov. One env-var
+  probe of mine reported variable-*name* lengths rather than value lengths —
+  a harmless slip in the check itself, not a finding; the set/empty half was
+  valid and confirmed `NIGHT_RUN_TOKEN`, `NEXT_PUBLIC_SUPABASE_URL` and
+  `NEXT_PUBLIC_SUPABASE_ANON_KEY` are set with no service-role key present,
+  as intended.
 
 ## Roadmap access — fixed 12 Oct 2026 (Night Run)
 
@@ -107,13 +108,13 @@ feel like tidying.
 
 Nothing queued *in this file*. (PWA support, the branded icon/favicon, loading
 skeletons and command bar → Studyboy generation were built and pushed on 21 Sep
-2026.) The Supabase roadmap was read successfully on 10 Nov and is also empty
+2026.) The Supabase roadmap was read successfully on 11 Nov and is also empty
 of open items — see the top section.
 
 ## Built — waiting on you to run the SQL
 
 **Checked on the 13 Oct 2026 run, and re-checked on 14, 16, 17, 18, 19, 20, 21,
-22, 23, 24, 25, 26, 27, 28, 29, 30 and 31 Oct and 1, 2, 3, 4, 5, 6, 7, 8, 9 and 10 Nov —
+22, 23, 24, 25, 26, 27, 28, 29, 30 and 31 Oct and 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 and 11 Nov —
 still true:** `aio_studyboy_attempts`, `aio_notification_log`, `aio_study_resources`
 and `aio_night_runs` all answer **200** from the REST API now, where on 11 Oct
 they all 404'd as missing from the schema cache (`PGRST205`). So 001, 002,
@@ -134,7 +135,7 @@ One left, and it is the optional one:
 - **Studyboy doc numbers (optional)** →
   `pending-sql/004_aio_studyboy_doc_numbers.sql`. Still unrun —
   `aio_studyboy_docs.doc_number` does not exist (`42703`), confirmed again on
-  the 10 Nov run. Gives each Studyboy doc a stable `doc_number`, so "open doc 3" means
+  the 11 Nov run. Gives each Studyboy doc a stable `doc_number`, so "open doc 3" means
   the same doc even after an earlier one is deleted. Genuinely optional: the
   Kindle command route already numbers docs in upload order and works
   without it. Run it only if you want the numbers to stay put.
