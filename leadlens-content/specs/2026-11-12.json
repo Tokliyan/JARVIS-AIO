@@ -1,0 +1,21 @@
+{
+  "id": "2026-11-12",
+  "topic": "Direct ask",
+  "caption": "Every small business has a job that quietly eats the week. Chasing messages, booking times, following up quotes. Tell me yours and I'll tell you if an agent could take it off your plate. What's eating your week?",
+  "hashtags": ["#smallbusinessau", "#sydneybusiness", "#tradie", "#automation", "#smallbusinesstips"],
+  "carousel": {"slides": [
+    {"headline": "Tell me what's eating your week.", "accent": "eating your week"},
+    {"headline": "Every business has one.", "accent": "one", "body": "One repetitive job that keeps pulling you away from the real work."},
+    {"headline": "Maybe it's the messages.", "accent": "messages", "body": "Replying to the same questions, again and again, usually after hours."},
+    {"headline": "Maybe it's the bookings.", "accent": "bookings", "body": "Back and forth to find a time, then chasing people who don't show."},
+    {"headline": "Maybe it's the follow-ups.", "accent": "follow-ups", "body": "Quotes sent, reviews not asked for, old customers never contacted."},
+    {"headline": "Tell me yours.", "accent": "yours", "body": "I'll be straight about whether an agent could take it off your plate."}
+  ]},
+  "reel": {"beats": [
+    {"text": "Tell me what's eating your week.", "accent": "eating your week."},
+    {"text": "Every business has one repetitive job that never ends.", "accent": "one repetitive job"},
+    {"text": "Replying to messages. Booking times. Chasing follow-ups.", "accent": "Chasing follow-ups."},
+    {"text": "What if that job just got done without you?", "accent": "got done without you?"},
+    {"text": "Tell me yours and I'll tell you if an agent can help.", "bubble": "Hi! Saw your comment. What's the one job eating your week?", "accent": "tell you"}
+  ]}
+}
