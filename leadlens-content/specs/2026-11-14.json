@@ -1,0 +1,21 @@
+{
+  "id": "2026-11-14",
+  "topic": "Quote follow-ups",
+  "caption": "You send the quote, then get busy, and the customer goes quiet. Most of the time they haven't said no, they've just forgotten. If a friendly check-in went out for you a few days later, how many of those quotes would turn into jobs?",
+  "hashtags": ["#smallbusinessau", "#tradie", "#sydneybusiness", "#automation", "#quotes"],
+  "carousel": {"slides": [
+    {"headline": "You sent the quote. Then silence.", "accent": "Then silence"},
+    {"headline": "They didn't say no.", "accent": "no", "body": "They got busy, forgot, or meant to reply later. It happens to everyone."},
+    {"headline": "And you didn't chase it.", "accent": "chase it", "body": "You're on the next job. Following up feels awkward and always slips."},
+    {"headline": "The quote quietly goes cold.", "accent": "goes cold", "body": "Work you already priced and won, just never closed."},
+    {"headline": "What if a check-in went out for you?", "accent": "check-in", "body": "A friendly message a few days after the quote. In your voice. Without you remembering."},
+    {"headline": "You stay on the tools.", "accent": "on the tools", "body": "If they reply, you pick it up. If they're unsure, it hands the chat back to you."}
+  ]},
+  "reel": {"beats": [
+    {"text": "You sent the quote. Then silence.", "accent": "Then silence."},
+    {"text": "They didn't say no. They just got busy and forgot.", "accent": "forgot."},
+    {"text": "You're on the next job. Chasing it never happens.", "accent": "never happens."},
+    {"text": "What if a friendly check-in went out for you?", "accent": "check-in"},
+    {"text": "A few days after the quote. In your voice.", "bubble": "Hi! Just checking in on the quote we sent. Any questions I can answer?", "accent": "In your voice."}
+  ]}
+}
