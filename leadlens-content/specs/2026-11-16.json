@@ -1,0 +1,21 @@
+{
+  "id": "2026-11-16",
+  "topic": "Rebooking lapsed customers",
+  "caption": "Plenty of past customers haven't gone anywhere, they just never got a nudge when it was time to come back. If a friendly message went out for you, in your voice, how many would book in again? Comment AGENT below.",
+  "hashtags": ["#smallbusinessau", "#sydneybusiness", "#tradie", "#automation", "#repeatcustomers"],
+  "carousel": {"slides": [
+    {"headline": "Your old customers haven't left. They've drifted.", "accent": "drifted"},
+    {"headline": "They liked your work.", "accent": "liked", "body": "Then life got busy and nobody reminded them it was time to book again."},
+    {"headline": "You never reached out.", "accent": "never reached out", "body": "You're flat out with new jobs. Messaging past customers always slips."},
+    {"headline": "So they go quiet for months.", "accent": "quiet", "body": "Easy repeat work, sitting in your contacts, doing nothing."},
+    {"headline": "What if a nudge went out for you?", "accent": "nudge", "body": "A friendly message when it's time to book again. In your voice. Without you remembering."},
+    {"headline": "You only handle the replies.", "accent": "replies", "body": "If they want a time, you pick it up. If they're unsure, it hands the chat back to you."}
+  ]},
+  "reel": {"beats": [
+    {"text": "Your old customers haven't left. They've drifted.", "accent": "drifted."},
+    {"text": "They liked your work. Nobody reminded them to book again.", "accent": "book again."},
+    {"text": "You're busy with new jobs. Messaging old ones never happens.", "accent": "never happens."},
+    {"text": "What if a friendly nudge went out for you?", "accent": "nudge"},
+    {"text": "When it's time to book again. In your voice.", "bubble": "Hi! It's been a while. Want me to find you a time to book in again?", "accent": "In your voice."}
+  ]}
+}
