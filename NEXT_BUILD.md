@@ -17,28 +17,28 @@ Process:
 - If something's ambiguous, leave a comment explaining what's unclear
   rather than guessing.
 
-## Idle — 16 Nov 2026: roadmap reads fine, thirty-fourth night with nothing queued
+## Idle — 17 Nov 2026: roadmap reads fine, thirty-fifth night with nothing queued
 
-Same shape as the last thirty-three nights: the roadmap is readable and empty,
+Same shape as the last thirty-four nights: the roadmap is readable and empty,
 and that is the only reason this routine ships no feature work. Checked on this
-run (16 Nov, 05:05 Sydney / 15 Nov 18:05 UTC):
+run (17 Nov, 05:06 Sydney / 16 Nov 18:06 UTC):
 
 - `GET /api/nightrun/queue` → **200** `{"projects_seen":4,"items":[]}`.
   `projects_seen:4` is the proof the service-key read actually returned rows, so
   the roadmap was genuinely *readable*, and across all 4 projects there is no
   item whose status isn't `done`. (`openRoadmapItems` returns anything not
   `done` — `lib/nightRun.js:99` — so an empty list can't be a status-spelling
-  artefact.) `/login` took 31s to wake Render first. The unauthenticated control
-  ran this time and gave **401** `{"error":"Unauthorized"}` — last run's lesson
-  about issuing it as its own command worked.
-- **The `?project=ambient` variant was refused tonight** by the auto-mode
-  classifier ("Unauthorized Access"), even though the identical unscoped read
-  one command earlier passed. It cost nothing: the unscoped read already spans
-  all 4 projects, so ambient is inside that `items:[]` by construction, and the
-  scoped call only ever narrowed what the unscoped one already covers. Worth
-  knowing the classifier can split hairs between two forms of the same read —
-  if it refuses the scoped one, the unscoped read is the sufficient answer and
-  the denial should not be worked around.
+  artefact.) `/login` took 31.6s to wake Render first. The unauthenticated
+  control ran as its own command and gave **401** `{"error":"Unauthorized"}`,
+  so the 200 is a real authenticated read and not a silent auth failure.
+- **The `?project=ambient` variant passed this run** → **200**
+  `{"projects_seen":4,"items":[]}`, so Ambient Intelligence specifically is
+  confirmed to have no open item, not merely inferred from the unscoped read.
+  Last run the classifier refused this exact call while allowing the unscoped
+  one; tonight it allowed both. So that refusal was not a stable rule about the
+  scoped form — it can vary run to run, and the standing advice holds either
+  way: if it is refused, the unscoped read is the sufficient answer and the
+  denial should not be worked around.
 - The direct Supabase REST read was tried first this run, as the routine's
   prompt asks, and behaved exactly as designed-against: `aio_projects` →
   `200 []` with the anon key under RLS, and `aio_roadmap_items` → `404
@@ -57,21 +57,16 @@ run (16 Nov, 05:05 Sydney / 15 Nov 18:05 UTC):
 - `npm ci` was needed before the build again this run — this container cloned
   without `node_modules`. Confirmed `node_modules/.bin/next` existed before
   building, and the build ran clean first try. Worth keeping that habit.
-- **The stale-`origin/main` trap fired again this run**, seven nights running:
-  the fresh clone's `origin/main` read `dd79a29` — six commits behind — while
-  `git ls-remote origin main`, the ref to trust per the 9/14 Oct lesson, read
-  `28ef518`, which is what `HEAD` read too. So the 15 Nov commits are on `main`
-  all along and nothing is stranded; an `origin/main..HEAD` comparison taken
-  before fetching would have looked like six missing runs, which is exactly
-  the false alarm the 9 Oct run raised. This run works from `HEAD`, so the
-  stale local refs were left alone. This run's own branch is
-  `claude/ecstatic-goldberg-tg96k2`.
+- **The stale-`origin/main` trap did *not* fire this run**, ending a seven-night
+  streak: the fresh clone's `origin/main`, `git ls-remote origin main` and
+  `HEAD` all read `fe5ac86`. So the clone was current for once. This does not
+  retire the 9/14 Oct lesson — `git ls-remote` is still the ref to trust, and
+  checking it is what established the three agreed tonight. This run's own
+  branch is `claude/ecstatic-goldberg-70mvfj`.
 - Env probe passed this run using the same set/empty-only habit (never
   lengths): `NIGHT_RUN_TOKEN`, `NEXT_PUBLIC_SUPABASE_URL` and
   `NEXT_PUBLIC_SUPABASE_ANON_KEY` are set, with no service-role key present, as
   intended.
-- Last run's other lesson also held: this file was edited with the normal
-  file-edit tool, not an in-place script, and passed without a refusal.
 
 ## Roadmap access — fixed 12 Oct 2026 (Night Run)
 
@@ -113,13 +108,13 @@ feel like tidying.
 
 Nothing queued *in this file*. (PWA support, the branded icon/favicon, loading
 skeletons and command bar → Studyboy generation were built and pushed on 21 Sep
-2026.) The Supabase roadmap was read successfully on 16 Nov and is also empty
+2026.) The Supabase roadmap was read successfully on 17 Nov and is also empty
 of open items — see the top section.
 
 ## Built — waiting on you to run the SQL
 
 **Checked on the 13 Oct 2026 run, and re-checked on 14, 16, 17, 18, 19, 20, 21,
-22, 23, 24, 25, 26, 27, 28, 29, 30 and 31 Oct and 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 and 16 Nov —
+22, 23, 24, 25, 26, 27, 28, 29, 30 and 31 Oct and 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 and 17 Nov —
 still true:** `aio_studyboy_attempts`, `aio_notification_log`, `aio_study_resources`
 and `aio_night_runs` all answer **200** from the REST API now, where on 11 Oct
 they all 404'd as missing from the schema cache (`PGRST205`). So 001, 002,
@@ -140,7 +135,7 @@ One left, and it is the optional one:
 - **Studyboy doc numbers (optional)** →
   `pending-sql/004_aio_studyboy_doc_numbers.sql`. Still unrun —
   `aio_studyboy_docs.doc_number` does not exist (`42703`), confirmed again on
-  the 16 Nov run. Gives each Studyboy doc a stable `doc_number`, so "open doc 3" means
+  the 17 Nov run. Gives each Studyboy doc a stable `doc_number`, so "open doc 3" means
   the same doc even after an earlier one is deleted. Genuinely optional: the
   Kindle command route already numbers docs in upload order and works
   without it. Run it only if you want the numbers to stay put.
