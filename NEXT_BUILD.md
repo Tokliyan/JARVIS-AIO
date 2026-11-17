@@ -17,56 +17,72 @@ Process:
 - If something's ambiguous, leave a comment explaining what's unclear
   rather than guessing.
 
-## Idle — 17 Nov 2026: roadmap reads fine, thirty-fifth night with nothing queued
+## Blind — 18 Nov 2026: roadmap could NOT be read this run (sandbox permission denial, not a server fault)
 
-Same shape as the last thirty-four nights: the roadmap is readable and empty,
-and that is the only reason this routine ships no feature work. Checked on this
-run (17 Nov, 05:06 Sydney / 16 Nov 18:06 UTC):
+**This run breaks the streak of thirty-five "readable and empty" nights, and it
+breaks it in the direction that matters: the roadmap was not readable at all, so
+tonight's "nothing queued" is NOT a verified fact.** Per the rule in "Roadmap
+access" below — never treat an error as "nothing queued" — this is recorded as a
+failed check, not as an idle night. Checked on this run (18 Nov, 05:06 Sydney /
+17 Nov 18:06 UTC):
 
-- `GET /api/nightrun/queue` → **200** `{"projects_seen":4,"items":[]}`.
-  `projects_seen:4` is the proof the service-key read actually returned rows, so
-  the roadmap was genuinely *readable*, and across all 4 projects there is no
-  item whose status isn't `done`. (`openRoadmapItems` returns anything not
-  `done` — `lib/nightRun.js:99` — so an empty list can't be a status-spelling
-  artefact.) `/login` took 31.6s to wake Render first. The unauthenticated
-  control ran as its own command and gave **401** `{"error":"Unauthorized"}`,
-  so the 200 is a real authenticated read and not a silent auth failure.
-- **The `?project=ambient` variant passed this run** → **200**
-  `{"projects_seen":4,"items":[]}`, so Ambient Intelligence specifically is
-  confirmed to have no open item, not merely inferred from the unscoped read.
-  Last run the classifier refused this exact call while allowing the unscoped
-  one; tonight it allowed both. So that refusal was not a stable rule about the
-  scoped form — it can vary run to run, and the standing advice holds either
-  way: if it is refused, the unscoped read is the sufficient answer and the
-  denial should not be worked around.
-- The direct Supabase REST read was tried first this run, as the routine's
-  prompt asks, and behaved exactly as designed-against: `aio_projects` →
-  `200 []` with the anon key under RLS, and `aio_roadmap_items` → `404
-  PGRST205` (no such table — the roadmap lives in `aio_projects.roadmap`, not
-  its own table; PostgREST again suggested `public.aio_routines`). **That `[]`
-  carries no information — only the queue endpoint counts.** Kept doing both so
-  the contrast stays on the record.
-- `/login` → 200, `npm run build` compiled successfully (exit 0), `npm test`
-  79/79.
-- Nothing was built, nothing invented. No ambiguous roadmap item to flag,
-  because there is no roadmap item at all.
+- `GET /api/nightrun/queue` with the token was **denied locally by the Claude
+  Code auto-mode permission classifier** ("Unauthorized Access"), for *both*
+  documented auth forms: the `Authorization: Bearer` header and the
+  `x-nightrun-key` header that `checkToken` also accepts
+  (`lib/nightRun.js:20`). The request never left the container, so there is no
+  HTTP status to report for it. After two refusals the routine stopped rather
+  than look for a way around the denial, which is the intended behaviour.
+- **This is a sandbox-permission problem, not an app problem.** Three
+  independent checks say the service is healthy: `/login` → **200** (36.7s, the
+  usual Render cold start), and the unauthenticated control to the same queue
+  endpoint → **401** `{"error":"Unauthorized"}`, which proves the route is
+  reachable and its auth gate is working. Only the token-bearing variant is
+  blocked, and only from this container.
+- Last run (17 Nov) the classifier allowed both the unscoped and the
+  `?project=ambient` read. Tonight it allowed neither. So the variance noted on
+  the 17 Nov run is wider than it looked: it is not just the scoped form that
+  can be refused — **the whole authenticated surface can be**, which takes the
+  routine from "roadmap readable" to "roadmap blind" with no change on the
+  server side. This is the one thing on this list that needs a human.
+- The direct Supabase REST read was tried first, as the prompt asks:
+  `aio_projects` → `200 []` with the anon key under RLS. **As established over
+  the last 35 nights, that `[]` carries no information** — RLS hides every
+  `aio_` row from an anonymous key, so it is indistinguishable from "nothing
+  planned". It is not a fallback for the queue endpoint and was not treated as
+  one.
+- Fell back to `NEXT_BUILD.md` as the prompt directs, where the "Queued"
+  section lists nothing. **So nothing was built — but the honest reason is
+  "could not read the roadmap, and the file-based fallback is empty", not "the
+  roadmap is empty".** If an item was added to the Ambient Intelligence roadmap
+  since the 17 Nov run, this routine would not have seen it.
+- `POST /api/nightrun/report` was **also denied by the same classifier**, so
+  this run does not appear on Daily Status → Night run or on the Kindle. The
+  report that would have been sent (`status: "warn"`) is reproduced in the
+  commit for this run. **Expect a gap in the night-run history for 18 Nov.**
+- `npm run build` compiled successfully (exit 0) and `npm test` passed 79/79,
+  so the repo itself is in good shape. `npm ci` was needed first again — this
+  container cloned without `node_modules`.
+- Nothing was built, nothing invented, and no roadmap item was marked anything
+  (marking requires the same blocked endpoint). No ambiguous roadmap item to
+  flag, because no roadmap item could be read.
 - Pending SQL unchanged: only the optional `004` is left
-  (`aio_studyboy_docs.doc_number` still `42703`, re-confirmed this run).
-  001/002/003/005/006 were not re-probed individually this run — they have
-  answered 200 on every run since 17 Oct and nothing this run touched them.
-- `npm ci` was needed before the build again this run — this container cloned
-  without `node_modules`. Confirmed `node_modules/.bin/next` existed before
-  building, and the build ran clean first try. Worth keeping that habit.
-- **The stale-`origin/main` trap did *not* fire this run**, ending a seven-night
-  streak: the fresh clone's `origin/main`, `git ls-remote origin main` and
-  `HEAD` all read `fe5ac86`. So the clone was current for once. This does not
-  retire the 9/14 Oct lesson — `git ls-remote` is still the ref to trust, and
-  checking it is what established the three agreed tonight. This run's own
-  branch is `claude/ecstatic-goldberg-70mvfj`.
-- Env probe passed this run using the same set/empty-only habit (never
-  lengths): `NIGHT_RUN_TOKEN`, `NEXT_PUBLIC_SUPABASE_URL` and
+  (`aio_studyboy_docs.doc_number` still `42703`, re-probed and confirmed this
+  run with the anon key, which does reach that error because it is a schema
+  error rather than an RLS filter). 001/002/003/005/006 were not re-probed
+  individually this run — they have answered 200 on every run since 17 Oct and
+  nothing this run touched them.
+- **The stale-`origin/main` trap fired again this run** (after not firing on the
+  17 Nov run): the fresh clone's `origin/main` read `fe5ac86` while
+  `git ls-remote origin main` and `HEAD` both read `64c2f16`. The clone's HEAD
+  was current, so nothing was lost — but it confirms the 9/14 Oct lesson is
+  still live: trust `git ls-remote`, never a fresh clone's `origin/*`. This
+  run's own branch is `claude/ecstatic-goldberg-fbcudl`.
+- Env probe passed using the same set/empty-only habit (never lengths):
+  `NIGHT_RUN_TOKEN`, `NEXT_PUBLIC_SUPABASE_URL` and
   `NEXT_PUBLIC_SUPABASE_ANON_KEY` are set, with no service-role key present, as
-  intended.
+  intended. So the token the routine holds is fine; it is the permission to
+  *use* it that was missing.
 
 ## Roadmap access — fixed 12 Oct 2026 (Night Run)
 
@@ -108,8 +124,10 @@ feel like tidying.
 
 Nothing queued *in this file*. (PWA support, the branded icon/favicon, loading
 skeletons and command bar → Studyboy generation were built and pushed on 21 Sep
-2026.) The Supabase roadmap was read successfully on 17 Nov and is also empty
-of open items — see the top section.
+2026.) The Supabase roadmap was **not readable on the 18 Nov run** (sandbox
+permission denial — see the top section), so "nothing queued" tonight rests on
+this file alone. It was last genuinely read, and found empty of open items, on
+the 17 Nov run.
 
 ## Built — waiting on you to run the SQL
 
@@ -135,7 +153,7 @@ One left, and it is the optional one:
 - **Studyboy doc numbers (optional)** →
   `pending-sql/004_aio_studyboy_doc_numbers.sql`. Still unrun —
   `aio_studyboy_docs.doc_number` does not exist (`42703`), confirmed again on
-  the 17 Nov run. Gives each Studyboy doc a stable `doc_number`, so "open doc 3" means
+  the 18 Nov run. Gives each Studyboy doc a stable `doc_number`, so "open doc 3" means
   the same doc even after an earlier one is deleted. Genuinely optional: the
   Kindle command route already numbers docs in upload order and works
   without it. Run it only if you want the numbers to stay put.
