@@ -1,0 +1,21 @@
+{
+  "id": "2026-11-18",
+  "topic": "FAQ questions",
+  "caption": "Opening hours, where you service, do you take bookings on weekends. The same few questions land in your DMs again and again, and every one needs a reply. If those got answered for you, in your voice, how much of your week would you get back? Comment AGENT below.",
+  "hashtags": ["#smallbusinessau", "#sydneybusiness", "#tradie", "#automation", "#customerservice"],
+  "carousel": {"slides": [
+    {"headline": "Same question. Again and again.", "accent": "Same question"},
+    {"headline": "What are your hours?", "accent": "hours", "body": "Where do you service? Do you do weekends? You answer the same few questions on repeat."},
+    {"headline": "Each one is quick to answer.", "accent": "quick", "body": "But they pile up between jobs, on your phone, when your hands are full."},
+    {"headline": "And the slow reply costs you.", "accent": "slow reply", "body": "Someone who can't get a simple answer often moves on to the next business."},
+    {"headline": "What if those answered themselves?", "accent": "answered themselves", "body": "The common questions handled instantly. In your voice. Day or night."},
+    {"headline": "You only step in when it matters.", "accent": "when it matters", "body": "Anything unusual or unsure gets handed straight back to you."}
+  ]},
+  "reel": {"beats": [
+    {"text": "Same question. Again and again.", "accent": "again and again."},
+    {"text": "Hours? Where you service? Weekends? On repeat.", "accent": "On repeat."},
+    {"text": "Quick to answer, but they pile up when you're busy.", "accent": "pile up"},
+    {"text": "What if those answered themselves?", "accent": "answered themselves"},
+    {"text": "Instantly. In your voice. Day or night.", "bubble": "Hi! Yes, we do weekends. Want me to find you a time?", "accent": "In your voice."}
+  ]}
+}
