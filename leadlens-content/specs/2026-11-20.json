@@ -1,0 +1,21 @@
+{
+  "id": "2026-11-20",
+  "topic": "After-hours enquiries",
+  "caption": "Enquiries don't wait for business hours. Weekends, evenings and early mornings are when plenty of people finally get around to messaging. If someone replied for you while you were off the clock, in your voice, what would that change? Comment AGENT below.",
+  "hashtags": ["#smallbusinessau", "#sydneybusiness", "#tradie", "#automation", "#afterhours"],
+  "carousel": {"slides": [
+    {"headline": "Enquiries don't keep business hours.", "accent": "business hours"},
+    {"headline": "People message when they're free.", "accent": "when they're free", "body": "Evenings, weekends, early mornings. That's when they get around to asking."},
+    {"headline": "You're off the clock.", "accent": "off the clock", "body": "Rightly so. You're with family, resting, or asleep before the next early start."},
+    {"headline": "So the message sits unread.", "accent": "sits unread", "body": "By morning they may have asked someone else who replied sooner."},
+    {"headline": "What if someone answered for you?", "accent": "answered for you", "body": "A friendly reply straight away. In your voice. Even at midnight."},
+    {"headline": "You wake up to a warm lead.", "accent": "warm lead", "body": "Anything tricky is handed back to you to handle your way."}
+  ]},
+  "reel": {"beats": [
+    {"text": "Enquiries don't keep business hours.", "accent": "business hours."},
+    {"text": "People message in the evenings, on weekends, early mornings.", "accent": "weekends,"},
+    {"text": "You're off the clock, so the message sits unread.", "accent": "sits unread."},
+    {"text": "What if someone answered for you?", "accent": "answered for you"},
+    {"text": "Straight away. In your voice. Even at midnight.", "bubble": "Hi! Thanks for getting in touch. What day suits you?", "accent": "In your voice."}
+  ]}
+}
