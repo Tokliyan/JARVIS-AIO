@@ -17,59 +17,63 @@ Process:
 - If something's ambiguous, leave a comment explaining what's unclear
   rather than guessing.
 
-## Checked — 19 Nov 2026: roadmap readable again, and empty (last night's blind spot left nothing behind)
+## Checked — 20 Nov 2026: roadmap NOT readable (the sandbox denied the authenticated read again)
 
-The authenticated read worked this run, so tonight's "nothing queued" is a
-**verified fact** rather than the unverified one the 18 Nov run had to record.
-Checked on this run (19 Nov, 05:04 Sydney / 18 Nov 18:04 UTC):
+**This is a failed check, not an idle night.** The roadmap's true state is
+unknown for this run. Nothing was built, because nothing could be read.
 
-- `GET /api/nightrun/queue` with the token → **200**
-  `{"projects_seen":4,"items":[]}`, both scoped (`?project=ambient`) and
-  unscoped. Four projects were seen and **zero roadmap items are anything other
-  than `done`**, so there is nothing planned or in progress anywhere on the
-  roadmap, not just on Ambient Intelligence.
-- **This closes the 18 Nov blind run with no work lost.** That run could not
-  read the roadmap and warned that an item added since 17 Nov would have gone
-  unseen. Tonight's read answers that: any such item would still be open and
-  would appear in this list, and the list is empty. So nothing was missed.
-- **The 18 Nov denial was intermittent, and the variance is still unexplained.**
-  Nothing changed on the server between the two runs — 17 Nov allowed both read
-  forms, 18 Nov allowed neither, 19 Nov allowed both again. Worth knowing when
-  reading these notes: a single "roadmap blind" night is not evidence of an app
-  or token problem, and this routine will keep recording it as a failed check
-  rather than an idle one.
+- `GET /api/nightrun/queue` (scoped `?project=ambient` and unscoped) was
+  **blocked locally before any request left the container** — the sandbox's
+  permission classifier refused the call ("Unauthorized Access"). Tried with
+  `curl` and again with `node`'s `fetch`; both refused. **No HTTP status came
+  back from the server at all**, so this says nothing about the app, the
+  token, or Render — only that this container would not make the call.
 - The direct Supabase REST read was tried first, as the prompt asks:
   `aio_projects` → `200 []` with the anon key under RLS. **As established over
-  the last 36 nights, that `[]` carries no information** — RLS hides every
+  the last 37 nights, that `[]` carries no information** — RLS hides every
   `aio_` row from an anonymous key, so it is indistinguishable from "nothing
-  planned". It is not a fallback for the queue endpoint and was not treated as
-  one. The queue endpoint is what tonight's verdict rests on.
-- `NEXT_BUILD.md`'s own "Queued" section also lists nothing, so file and
-  roadmap agree this run.
-- Nothing was built, nothing invented, and no roadmap item was marked anything
-  (there was no item to mark). No ambiguous roadmap item to flag.
-- `POST /api/nightrun/report` → **200**, so this run does appear on Daily
-  Status → Night run and on the Kindle, as `jarvis` / `ok` for run date
-  2026-11-19. **The 18 Nov gap in that history is still a gap** — that run's
-  report was blocked locally and cannot be backfilled from here.
-- `npm run build` compiled successfully (exit 0) and `npm test` passed 79/79.
-  `npm ci` was needed first again — this container cloned without
-  `node_modules`.
+  planned". It was not treated as a fallback, and it is not one.
+- Falling back to `NEXT_BUILD.md` per the prompt: its "Queued" section lists
+  nothing. **But that file is only as fresh as the last successful read
+  (19 Nov).** Any roadmap item added since then is invisible to this run. If
+  you queued something on 19 or 20 Nov, it was not picked up tonight — it will
+  be picked up on the next run that can read the queue.
+- **Nothing was built and nothing was invented.** No roadmap item was marked
+  `in_progress` or `done` — the write endpoint would have been denied the same
+  way, and there was no item in hand to mark. No ambiguous item to flag.
+- `POST /api/nightrun/report` was **also denied locally** ("Unsanctioned
+  Communication"). So 2026-11-20 will be a **gap** on Daily Status → Night run
+  and on the Kindle, exactly like the 18 Nov gap, which still cannot be
+  backfilled from here. A missing row there means "the routine could not
+  report", not "the routine did not run".
+- **The denial is recurring, not a one-off: 18 Nov denied, 19 Nov allowed,
+  20 Nov denied — two of the last three nights.** The 19 Nov note called the
+  18 Nov denial "intermittent" and unexplained; that still holds, but the rate
+  is now high enough to be worth acting on rather than just recording. Nothing
+  changed on the server across any of those three nights. This is a sandbox
+  permission issue on the routine's side, so the fix is there — the routine's
+  environment needs outbound calls to `jarvis-aio.onrender.com` with
+  `NIGHT_RUN_TOKEN` to be permitted. Until then, expect roughly one blind night
+  in three.
+- Health checks that did not need the network all passed: `npm run build`
+  compiled successfully (exit 0) and `npm test` passed 79/79. `npm ci` was
+  needed first again — this container cloned without `node_modules`.
 - Pending SQL unchanged: only the optional `004` is left
   (`aio_studyboy_docs.doc_number` still `42703`, re-probed and confirmed this
   run with the anon key, which does reach that error because it is a schema
   error rather than an RLS filter). 001/002/003/005/006 were not re-probed
   individually this run — they have answered 200 on every run since 17 Oct and
   nothing this run touched them.
-- **The stale-`origin/main` trap did not fire this run:** the fresh clone's
-  `origin/main`, `git ls-remote origin main` and `HEAD` all read `0886852`.
+- **The stale-`origin/main` trap did not fire this run:** `git ls-remote origin
+  main`, the clone's `origin/main` and local `HEAD` all read `e1282e2`.
   Checked anyway, per the 9/14 Oct lesson — trust `git ls-remote`, never a
   fresh clone's `origin/*`. This run's own branch is
-  `claude/ecstatic-goldberg-to78bx`.
+  `claude/ecstatic-goldberg-4jekjm`.
 - Env probe passed using the same set/empty-only habit (never lengths):
   `NIGHT_RUN_TOKEN`, `NEXT_PUBLIC_SUPABASE_URL` and
   `NEXT_PUBLIC_SUPABASE_ANON_KEY` are set, with no service-role key present, as
-  intended.
+  intended. So the token being missing is **not** the cause of tonight's
+  failure — the call never got far enough to use it.
 
 ## Roadmap access — fixed 12 Oct 2026 (Night Run)
 
@@ -111,9 +115,13 @@ feel like tidying.
 
 Nothing queued *in this file*. (PWA support, the branded icon/favicon, loading
 skeletons and command bar → Studyboy generation were built and pushed on 21 Sep
-2026.) The Supabase roadmap **was read successfully on the 19 Nov run** and
-holds no open items either — 4 projects seen, nothing not `done` — so "nothing
-queued" tonight is confirmed on both sources, not just this file.
+2026.) The Supabase roadmap was last read successfully on the **19 Nov** run,
+when it held no open items either — 4 projects seen, nothing not `done`.
+**The 20 Nov run could not read it** (sandbox denied the authenticated call),
+so as of tonight "nothing queued" is confirmed only by this file and by that
+19 Nov read. Anything added to the roadmap on 19 or 20 Nov would not have been
+seen. Treat this section as current only up to the last date in the "Checked"
+note above that reports a successful queue read.
 
 ## Built — waiting on you to run the SQL
 
