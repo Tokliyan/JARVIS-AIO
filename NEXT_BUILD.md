@@ -9,19 +9,16 @@ hardware.
 This file holds the **current state only**. Each night replaces "Last check"
 instead of adding to it. Past nights are in git history.
 
-## Last check — 20 Nov 2026: BLIND
+## Last check — 21 Nov 2026: OK
 
-- Roadmap queue: FAILED. `GET /api/nightrun/queue` was blocked by this
-  environment before the request left (no HTTP status), with curl and with
-  node fetch.
-- Last successful queue read: 19 Nov 2026 (4 projects, nothing open).
-- Built: nothing.
-- Daily Status report: FAILED. `POST /api/nightrun/report` was blocked the
-  same way, so 18 and 20 Nov show as gaps on Daily Status and the Kindle.
-- What it means: the app was never reached. Anything added to the roadmap
-  after 19 Nov hasn't been seen yet.
-- Fix: allow `jarvis-aio.onrender.com` in the routine's environment network
-  settings, and set `NIGHT_RUN_TOKEN` there.
+- Roadmap queue: read OK, 0 open items (4 projects seen).
+- Last successful queue read: 21 Nov 2026.
+- Built: nothing — nothing was open on the roadmap and nothing was queued in
+  this file.
+- Daily Status report: sent.
+- What it means: the roadmap is clear and the app is reachable again, so the
+  blind nights on 18 and 20 Nov were the environment's network block, not
+  Render or the token.
 - Health: npm run build ok, npm test 79/79, NIGHT_RUN_TOKEN set.
 
 ## Queued
