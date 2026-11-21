@@ -9,16 +9,15 @@ hardware.
 This file holds the **current state only**. Each night replaces "Last check"
 instead of adding to it. Past nights are in git history.
 
-## Last check — 21 Nov 2026: OK
+## Last check — 22 Nov 2026: OK
 
 - Roadmap queue: read OK, 0 open items (4 projects seen).
-- Last successful queue read: 21 Nov 2026.
-- Built: nothing — nothing was open on the roadmap and nothing was queued in
-  this file.
+- Last successful queue read: 22 Nov 2026.
+- Built: nothing — the roadmap had no open items and nothing was queued in this
+  file.
 - Daily Status report: sent.
-- What it means: the roadmap is clear and the app is reachable again, so the
-  blind nights on 18 and 20 Nov were the environment's network block, not
-  Render or the token.
+- What it means: quiet night by design — there was no work waiting, and the app,
+  the token and the repo are all healthy.
 - Health: npm run build ok, npm test 79/79, NIGHT_RUN_TOKEN set.
 
 ## Queued
@@ -32,8 +31,9 @@ Everything except one optional file has been run (001, 002, 003, 005 and 006
 all confirmed live).
 
 - **Studyboy doc numbers (optional)** →
-  `pending-sql/004_aio_studyboy_doc_numbers.sql`. Still not run
-  (`aio_studyboy_docs.doc_number` returns `42703`). It gives each Studyboy doc
+  `pending-sql/004_aio_studyboy_doc_numbers.sql`. Still not run as of the
+  21 Nov check (`aio_studyboy_docs.doc_number` returned `42703` then; the night
+  run has no way to re-check this itself). It gives each Studyboy doc
   a stable `doc_number`, so "open doc 3" means the same doc even after an
   earlier one is deleted. The Kindle already numbers docs in upload order
   without it.
