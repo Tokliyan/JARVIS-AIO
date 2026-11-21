@@ -1,0 +1,21 @@
+{
+  "id": "2026-11-22",
+  "topic": "What a Leadlens agent is",
+  "caption": "An agent is just one repetitive job, done for you, in your voice. Replying to enquiries, chasing quotes, nudging past customers. You stay in charge and it hands anything tricky back to you. Which job would you hand off first? Comment AGENT below.",
+  "hashtags": ["#smallbusinessau", "#sydneybusiness", "#tradie", "#automation", "#smallbusinesstips"],
+  "carousel": {"slides": [
+    {"headline": "What's an agent? One job, done for you.", "accent": "One job"},
+    {"headline": "It's not a robot taking over.", "accent": "not a robot", "body": "It's a helper that does one repetitive task so you don't have to."},
+    {"headline": "Pick the job that eats your week.", "accent": "eats your week", "body": "Replying to enquiries. Chasing quotes. Booking times. Asking for reviews."},
+    {"headline": "It works in your voice.", "accent": "your voice", "body": "Messages sound like you, not like a stiff template."},
+    {"headline": "It knows when to stop.", "accent": "when to stop", "body": "Anything tricky or unsure gets handed straight back to you."},
+    {"headline": "You stay in charge.", "accent": "in charge", "body": "Pause it, change it or turn it off whenever you like."}
+  ]},
+  "reel": {"beats": [
+    {"text": "What's an agent? One job, done for you.", "accent": "One job"},
+    {"text": "Not a robot taking over. A helper for one repetitive task.", "accent": "A helper"},
+    {"text": "Replying, chasing quotes, booking times. Pick the one that eats your week.", "accent": "eats your week."},
+    {"text": "It works in your voice, and hands back anything tricky.", "accent": "your voice,"},
+    {"text": "You stay in charge. Always.", "bubble": "Hi! Thanks for your message. Let me find you a time.", "accent": "in charge."}
+  ]}
+}
