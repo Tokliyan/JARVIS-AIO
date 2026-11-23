@@ -1,0 +1,21 @@
+{
+  "id": "2026-11-24",
+  "topic": "Busy on the job",
+  "caption": "When you're flat out on a job, your phone keeps lighting up and you can't answer it. Every unanswered message is someone waiting. If a helper replied for you while your hands were full, in your voice, what would that free up? Comment AGENT below.",
+  "hashtags": ["#smallbusinessau", "#sydneybusiness", "#tradie", "#automation", "#smallbusinesstips"],
+  "carousel": {"slides": [
+    {"headline": "Your hands are full. Your phone isn't.", "accent": "hands are full"},
+    {"headline": "You're mid-job.", "accent": "mid-job", "body": "Under a sink, on a roof, with a client in the chair. You can't pick up."},
+    {"headline": "The phone keeps lighting up.", "accent": "lighting up", "body": "Enquiries, questions, someone asking if you're free this week."},
+    {"headline": "Each one is a person waiting.", "accent": "person waiting", "body": "They want a quick answer. If it doesn't come, they ask someone else."},
+    {"headline": "What if a helper replied for you?", "accent": "helper replied", "body": "A friendly answer straight away. In your voice. While you keep working."},
+    {"headline": "You finish the job. Then you check in.", "accent": "check in", "body": "Anything tricky is waiting for you, everything else is already handled."}
+  ]},
+  "reel": {"beats": [
+    {"text": "Your hands are full. Your phone isn't.", "accent": "hands are full."},
+    {"text": "You're mid-job and can't pick up.", "accent": "mid-job"},
+    {"text": "Every message is a person waiting for an answer.", "accent": "person waiting"},
+    {"text": "What if a helper replied for you?", "accent": "helper replied"},
+    {"text": "Straight away. In your voice. While you keep working.", "bubble": "Hi! Thanks for your message. What day suits you?", "accent": "In your voice."}
+  ]}
+}
