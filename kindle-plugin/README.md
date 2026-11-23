@@ -13,6 +13,9 @@ material all happen on the server. So:
 | New command, better answers, new layout | push to GitHub, Render redeploys | No |
 | Plugin menu / keyboard behaviour | replace the plugin folder (below) | Yes, rarely |
 
+**Dashboard (weather, projects, news, swipe pages):** see
+[`DASHBOARD_SETUP.md`](DASHBOARD_SETUP.md) for the step-by-step install.
+
 This plugin runs alongside the existing `trmnl-koreader` dashboard plugin. It
 does not touch it.
 
@@ -47,7 +50,7 @@ does not touch it.
 ## 3. Use it
 
 KOReader menu (the top-of-screen menu) → the tools/gear area → **More tools → Ask JARVIS**.
-Pick **Ask…**, type a sentence, **Send**. The reply opens as a scrollable page;
+Pick **Dashboard** for the pages, or **Ask…** and type a sentence, **Send**. The reply opens as a scrollable page;
 **Ask again** at the bottom takes you straight back to the keyboard. **Recent commands**
 re-sends one of your last eight.
 
