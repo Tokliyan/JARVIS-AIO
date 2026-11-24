@@ -67,7 +67,13 @@ export default async function handler(req, res) {
   const idx = roadmap.findIndex((item) => item?.title === title);
   if (idx === -1) return res.status(404).json({ error: 'No roadmap item with that exact title' });
 
-  const next = roadmap.map((item, i) => (i === idx ? { ...item, status } : item));
+  // Remember when an item started and finished, so the Kindle can show what
+  // was done and when. Dates are Sydney calendar days.
+  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Australia/Sydney' }).format(new Date());
+  const stamp = { status };
+  if (status === 'done') stamp.done_at = today;
+  if (status === 'in_progress' && !roadmap[idx].started_at) stamp.started_at = today;
+  const next = roadmap.map((item, i) => (i === idx ? { ...item, ...stamp } : item));
   const { error: updateError } = await db
     .from('aio_projects')
     .update({ roadmap: next, updated_at: new Date().toISOString() })

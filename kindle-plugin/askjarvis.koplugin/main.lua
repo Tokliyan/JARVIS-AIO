@@ -39,7 +39,8 @@ local Screen = Device.screen
 local MAX_RECENT = 8
 local ENDPOINT = "/api/kindle/command"
 local PAGE_ENDPOINT = "/api/kindle/page"
--- Swipe order for the dashboard; "project" detail pages sit under "projects".
+-- Swipe order for the main pages. Longer views (stories, project tabs) send
+-- their own swipe zones, so this is only the fallback.
 local PAGE_ORDER = { "home", "weather", "projects", "news" }
 local REFRESH_SECONDS = 15 * 60
 
@@ -279,9 +280,14 @@ function AskJarvis:showReply(reply)
 end
 
 -- ---------------------------------------------------------------- dashboard
--- The pages are pictures drawn by the server (weather, projects, news...).
--- This view shows one, works out what a tap means from the zones the server
--- sends back, swaps pages, and refreshes itself every 15 minutes.
+-- The pages are pictures drawn by the server (home, weather, news, stories,
+-- projects). This view shows one, works out what a tap or swipe means from the
+-- "zones" the server sends back, and refreshes itself every 15 minutes.
+--
+-- A zone looks like { x, y, w, h, go, id?, tab?, pg?, swipe? } where x/y/w/h
+-- are fractions of the screen. Tapping inside it asks the server for page
+-- `go` with whichever of id/tab/pg are set. A zone with `swipe` ("west" or
+-- "east") is what that swipe does, not a tap target.
 
 local function urlEncode(s)
     return (tostring(s):gsub("[^%w%-_%.~]", function(c) return string.format("%%%02X", string.byte(c)) end))
@@ -291,11 +297,12 @@ local function pageIndex(page)
     for i, p in ipairs(PAGE_ORDER) do
         if p == page then return i end
     end
-    return 1
+    return nil
 end
 
 -- Returns (png_bytes, zones_table, nil) or (nil, nil, message).
-function AskJarvis:fetchPage(page, id)
+-- params may hold id, tab and pg.
+function AskJarvis:fetchPage(page, params)
     local base = trim(self.settings:readSetting("base_url"))
     local token = trim(self.settings:readSetting("token"))
     if base == "" or token == "" then
@@ -304,7 +311,10 @@ function AskJarvis:fetchPage(page, id)
     base = base:gsub("/+$", "")
 
     local url = string.format("%s%s?p=%s&w=%d&h=%d", base, PAGE_ENDPOINT, urlEncode(page), Screen:getWidth(), Screen:getHeight())
-    if id then url = url .. "&id=" .. urlEncode(id) end
+    for _i, key in ipairs({ "id", "tab", "pg" }) do
+        local v = params and params[key]
+        if v ~= nil then url = url .. "&" .. key .. "=" .. urlEncode(v) end
+    end
 
     local requester = require("socket.http")
     if base:match("^https") then requester = require("ssl.https") end
@@ -337,7 +347,7 @@ end
 local DashboardView = InputContainer:extend{
     plugin = nil,
     page = "home",
-    project_id = nil,
+    params = nil,
     zones = nil,
     covers_fullscreen = true,
 }
@@ -352,6 +362,7 @@ function DashboardView:init()
         self.key_events = { CloseDash = { { "Back" } } }
     end
     self.zones = {}
+    self.params = self.params or {}
     self.image_path = DataStorage:getDataDir() .. "/cache/askjarvis_dash.png"
     self[1] = FrameContainer:new{
         background = Blitbuffer.COLOR_WHITE,
@@ -361,7 +372,7 @@ function DashboardView:init()
         TextWidget:new{ text = _("Loading…"), face = Font:getFace("cfont", 28) },
     }
     self.auto_refresh = function()
-        self:load(self.page, self.project_id, "full", true)
+        self:load(self.page, self.params, "full", true)
         UIManager:scheduleIn(REFRESH_SECONDS, self.auto_refresh)
     end
 end
@@ -373,7 +384,7 @@ function DashboardView:onShow()
         pcall(os.execute, "lipc-set-prop com.lab126.powerd preventScreenSaver 1 2>/dev/null")
     end
     UIManager:scheduleIn(REFRESH_SECONDS, self.auto_refresh)
-    self:load(self.page, self.project_id, "full")
+    self:load(self.page, self.params, "full")
 end
 
 function DashboardView:onCloseWidget()
@@ -391,7 +402,7 @@ function DashboardView:onCloseDash()
 end
 
 -- Fetch a page and swap the picture in. mode: "partial" (quick) or "full" (flash).
-function DashboardView:load(page, id, mode, silent)
+function DashboardView:load(page, params, mode, silent)
     NetworkMgr:runWhenOnline(function()
         local busy
         if not silent then
@@ -400,7 +411,7 @@ function DashboardView:load(page, id, mode, silent)
             UIManager:forceRePaint()
         end
 
-        local png, zones, err = self.plugin:fetchPage(page, id)
+        local png, zones, err = self.plugin:fetchPage(page, params)
         if busy then UIManager:close(busy) end
         if not png then
             if not silent then UIManager:show(InfoMessage:new{ text = err }) end
@@ -417,7 +428,7 @@ function DashboardView:load(page, id, mode, silent)
 
         pcall(function() self[1][1]:free() end)
         self.page = page
-        self.project_id = id
+        self.params = params or {}
         self.zones = zones
         self[1] = FrameContainer:new{
             background = Blitbuffer.COLOR_WHITE,
@@ -436,21 +447,20 @@ function DashboardView:load(page, id, mode, silent)
     end)
 end
 
+-- Do what a zone says: close, or load another page with its id/tab/pg.
 function DashboardView:go(zone)
     if zone.go == "close" then
         UIManager:close(self)
-    elseif zone.go == "project" then
-        self:load("project", zone.id, "partial")
-    else
-        self:load(zone.go, nil, "partial")
+        return
     end
+    self:load(zone.go, { id = zone.id, tab = zone.tab, pg = zone.pg }, "partial")
 end
 
 function DashboardView:onTapDash(_arg, ges)
     local fx = (ges.pos.x - self.dimen.x) / self.dimen.w
     local fy = (ges.pos.y - self.dimen.y) / self.dimen.h
     for _i, z in ipairs(self.zones or {}) do
-        if fx >= z.x and fx <= z.x + z.w and fy >= z.y and fy <= z.y + z.h then
+        if not z.swipe and fx >= z.x and fx <= z.x + z.w and fy >= z.y and fy <= z.y + z.h then
             self:go(z)
             return true
         end
@@ -458,15 +468,23 @@ function DashboardView:onTapDash(_arg, ges)
     return true
 end
 
--- Swipe left for the next page, right for the previous one.
+-- Swipe left (west) for next, right (east) for previous. The server says what
+-- that means on long views (story pages, project lists). Otherwise it moves
+-- along Home / Weather / Projects / News.
 function DashboardView:onSwipeDash(_arg, ges)
     local dir = ges.direction
     if dir ~= "west" and dir ~= "east" then return true end
-    local base_page = self.page
-    if base_page == "project" then base_page = "projects" end
-    local i = pageIndex(base_page)
-    i = (dir == "west") and (i % #PAGE_ORDER) + 1 or ((i - 2) % #PAGE_ORDER) + 1
-    self:load(PAGE_ORDER[i], nil, "partial")
+    for _i, z in ipairs(self.zones or {}) do
+        if z.swipe == dir then
+            self:go(z)
+            return true
+        end
+    end
+    local i = pageIndex(self.page)
+    if i then
+        i = (dir == "west") and (i % #PAGE_ORDER) + 1 or ((i - 2) % #PAGE_ORDER) + 1
+        self:load(PAGE_ORDER[i], {}, "partial")
+    end
     return true
 end
 

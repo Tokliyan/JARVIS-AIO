@@ -37,7 +37,17 @@ export default function RoadmapEditor({ project, onChange }) {
   }
 
   function setItemStatus(i, next) {
-    persist(items.map((it, idx) => (idx === i ? { ...it, status: next } : it)));
+    // Dates let the Kindle show what was done and when.
+    const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Australia/Sydney' }).format(new Date());
+    persist(
+      items.map((it, idx) => {
+        if (idx !== i) return it;
+        const stamped = { ...it, status: next };
+        if (next === 'done') stamped.done_at = today;
+        if (next === 'in_progress' && !it.started_at) stamped.started_at = today;
+        return stamped;
+      }),
+    );
   }
 
   function remove(i) {
