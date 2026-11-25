@@ -1,0 +1,21 @@
+{
+  "id": "2026-11-26",
+  "topic": "Start with one job",
+  "caption": "You don't have to automate your whole business. Pick the one task you dread most, hand just that off, and see how it feels. If it's not for you, you stop. What's the one job you'd try first? Comment AGENT below.",
+  "hashtags": ["#smallbusinessau", "#sydneybusiness", "#tradie", "#automation", "#smallbusinesstips"],
+  "carousel": {"slides": [
+    {"headline": "Start with one job. Not everything.", "accent": "one job"},
+    {"headline": "You don't need a big overhaul.", "accent": "big overhaul", "body": "Most people never start because it sounds like too much."},
+    {"headline": "Find the task you dread most.", "accent": "dread most", "body": "The one you put off, repeat daily or forget until it's late."},
+    {"headline": "Hand off just that one.", "accent": "just that one", "body": "A helper does that single task, in your voice. Nothing else changes."},
+    {"headline": "See how it feels.", "accent": "how it feels", "body": "Check the messages. Tweak anything you don't like. Pause it any time."},
+    {"headline": "Happy? Add another. Not sure? Stop.", "accent": "Add another", "body": "No pressure and no big commitment. You decide the pace."}
+  ]},
+  "reel": {"beats": [
+    {"text": "Start with one job. Not everything.", "accent": "one job."},
+    {"text": "Automating it all sounds like too much, so most people never start.", "accent": "never start."},
+    {"text": "What if you handed off just the task you dread most?", "accent": "dread most?"},
+    {"text": "One helper. One job. In your voice. Pause it any time.", "accent": "One job."},
+    {"text": "Happy? Add another. Not sure? Stop.", "bubble": "Hi! Thanks for your message. Let me find you a time.", "accent": "Add another."}
+  ]}
+}
