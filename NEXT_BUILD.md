@@ -9,15 +9,15 @@ hardware.
 This file holds the **current state only**. Each night replaces "Last check"
 instead of adding to it. Past nights are in git history.
 
-## Last check — 26 Nov 2026: OK
+## Last check — 27 Nov 2026: OK
 
 - Roadmap queue: read OK, 0 open items (4 projects seen).
-- Last successful queue read: 26 Nov 2026.
+- Last successful queue read: 27 Nov 2026.
 - Built: nothing — the roadmap had no open items and nothing was queued in this
   file.
 - Daily Status report: sent.
-- What it means: another quiet night by design — nothing was waiting, and the
-  app, the token, the build and the tests are all healthy.
+- What it means: a quiet night by design — nothing was waiting, and the app, the
+  token, the build and the tests are all healthy.
 - Health: npm run build ok, npm test 95/95, NIGHT_RUN_TOKEN set.
 
 ## Queued
