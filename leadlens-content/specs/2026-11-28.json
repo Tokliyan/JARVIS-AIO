@@ -1,0 +1,21 @@
+{
+  "id": "2026-11-28",
+  "topic": "When the agent isn't sure",
+  "caption": "The fair worry about automation is that it'll make something up to your customer. A good agent should do the opposite: when it isn't sure, it passes the chat back to you. What's one question you'd always want to answer yourself? Comment AGENT below.",
+  "hashtags": ["#smallbusinessau", "#sydneybusiness", "#tradie", "#automation", "#smallbusinesstips"],
+  "carousel": {"slides": [
+    {"headline": "What if it gets a question wrong?", "accent": "gets a question wrong"},
+    {"headline": "It's a fair worry.", "accent": "fair worry", "body": "Those are your customers. A bad answer has your business name on it."},
+    {"headline": "Some questions are simple.", "accent": "simple", "body": "Opening hours. Areas you cover. How to book. You give the answers."},
+    {"headline": "Others need you.", "accent": "need you", "body": "A complaint. An unusual job. Anything your answers don't cover."},
+    {"headline": "So it shouldn't guess.", "accent": "shouldn't guess", "body": "It should say you'll get back to them, then pass the chat to you."},
+    {"headline": "You make the call.", "accent": "You", "body": "You see what was asked and reply yourself when you're free."}
+  ]},
+  "reel": {"beats": [
+    {"text": "What if it gets a question wrong?", "accent": "wrong?"},
+    {"text": "Fair worry. A bad answer has your business name on it.", "accent": "Fair worry."},
+    {"text": "Simple questions get the answers you gave it.", "accent": "you gave it."},
+    {"text": "What if it passed anything else to you, without guessing?", "accent": "without guessing?"},
+    {"text": "Tricky ones go to you.", "bubble": "Good question. I'll pass this on so you get a proper answer.", "accent": "go to you."}
+  ]}
+}
